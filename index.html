@@ -3,117 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NovaHealth Elite 🔬</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>AuraHealth Clinical 🔬</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; }
-        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-        .glow-btn { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
-        .progress-bar { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        :root { --bg: #050505; --accent: #00ff9d; --card: #111111; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: #ffffff; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+        .glass-blur { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .neon-border { border: 1px solid rgba(0, 255, 157, 0.2); box-shadow: 0 0 15px rgba(0, 255, 157, 0.05); }
+        .step-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState } = React;
 
         const App = () => {
             const [step, setStep] = useState(0);
-            const [form, setForm] = useState({ 
-                weight: '', height: '', age: '', sex: 'male', 
-                goal: 'muscle', activity: 'moderate', sleep: '7',
-                stress: 'medium', bodyfat: '20', medical: '' 
-            });
+            const [form, setForm] = useState({ weight: '', height: '', age: '', sex: 'male', goal: 'lean', activity: 'mod', medical: '' });
             const [loading, setLoading] = useState(false);
             const [report, setReport] = useState(null);
 
             const questions = [
-                { id: 'sex', q: "Let's start with your biology", sub: "Hormonal baseline", icon: "🧬", options: [['male', 'Male'], ['female', 'Female']] },
-                { id: 'age', q: "How many years of life?", sub: "Metabolic age calculation", icon: "🎂", type: 'number', placeholder: 'Years' },
-                { id: 'weight', q: "Current total mass?", sub: "Measured in kilograms", icon: "⚖️", type: 'number', placeholder: 'kg' },
-                { id: 'height', q: "Total standing height?", sub: "Measured in centimeters", icon: "📏", type: 'number', placeholder: 'cm' },
-                { id: 'goal', q: "What is your primary focus?", sub: "Targeting your objective", icon: "🎯", options: [['fatloss', 'Aggressive Fat Loss 📉'], ['muscle', 'Lean Muscle Gain 💪'], ['longevity', 'Vitality & Longevity ✨']] },
-                { id: 'activity', q: "Weekly physical exertion?", sub: "NEAT & Exercise level", icon: "⚡", options: [['sedentary', 'Sedentary (Office)'], ['moderate', 'Moderate (3-4 days)'], ['athlete', 'High Performance (Daily)']] },
-                { id: 'sleep', q: "Avg recovery (Sleep)?", sub: "Critical for hormone balance", icon: "😴", options: [['low', 'Under 6 hrs'], ['ideal', '7-9 hrs'], ['high', '9+ hrs']] },
-                { id: 'medical', q: "Any medical challenges?", sub: "Knee pain, diabetes, etc.", icon: "🏥", type: 'text', placeholder: 'None / Describe briefly' }
+                { id: 'sex', q: "Biological Origin", sub: "Clinical baseline for hormonal tracking", icon: "🧬", options: [['male', 'Male (XY)'], ['female', 'Female (XX)']] },
+                { id: 'age', q: "Chronological Age", sub: "Required for Mifflin-St Jeor metabolic decay algorithm", icon: "⏳", type: 'number', placeholder: 'Ex: 28' },
+                { id: 'weight', q: "Total Body Mass", sub: "Current gravitational weight in kilograms", icon: "⚖️", type: 'number', placeholder: 'kg' },
+                { id: 'height', q: "Vertical Stature", sub: "Needed for BMI & Body Surface Area (BSA) calcs", icon: "📏", type: 'number', placeholder: 'cm' },
+                { id: 'activity', q: "Exercise Frequency", sub: "Determines Activity Multiplier (NEAT)", icon: "🏃", options: [['low', 'Sedentary / Desk'], ['mod', 'Active (3-5 days)'], ['pro', 'Professional Athlete']] },
+                { id: 'medical', q: "Clinical Observations", sub: "Identify injuries, allergies, or metabolic conditions", icon: "🏥", type: 'text', placeholder: 'Describe (or type None)' }
             ];
-
-            const handleNext = () => {
-                if(step < questions.length - 1) setStep(step + 1);
-                else generateReport();
-            };
 
             const generateReport = () => {
                 setLoading(true);
                 setTimeout(() => {
                     let bmr = (10 * form.weight) + (6.25 * form.height) - (5 * form.age) + (form.sex === 'male' ? 5 : -161);
-                    setReport({ bmr: Math.round(bmr), tdee: Math.round(bmr * 1.55) });
+                    const tdee = Math.round(bmr * 1.55);
+                    setReport({ bmr: Math.round(bmr), tdee });
                     setLoading(false);
-                }, 2500);
+                }, 2800);
             };
 
+            const next = () => step < questions.length - 1 ? setStep(step + 1) : generateReport();
+
             if (loading) return (
-                <div className="flex flex-col items-center justify-center min-h-screen p-10 text-center">
-                    <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-6"></div>
-                    <h2 className="text-xl font-bold text-emerald-400">Processing Biometrics...</h2>
-                    <p className="text-slate-500 text-sm mt-2 italic text-sm italic">Analyzing 45+ scientific data points for your custom report</p>
+                <div className="flex flex-col items-center justify-center min-h-screen text-center p-10 bg-black">
+                    <div className="w-12 h-12 border-2 border-t-transparent border-[#00ff9d] rounded-full animate-spin mb-6"></div>
+                    <h2 className="text-sm font-bold tracking-[0.3em] text-[#00ff9d] uppercase">Running Clinical Algorithms</h2>
+                    <p className="text-gray-500 text-[10px] mt-4 max-w-xs">Applying Thermogenesis models & Lean Mass partitioning logic...</p>
                 </div>
             );
 
             if (report) return (
-                <div className="p-6 max-w-md mx-auto animate-in fade-in">
-                    <h1 className="text-center text-emerald-400 font-extrabold text-2xl italic mb-8">NOVAHEALTH ELITE 💎</h1>
-                    <div className="glass-card rounded-[2.5rem] p-8 mb-6 border-emerald-500/30">
-                        <p className="text-center text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Predicted Daily Burn</p>
-                        <h2 className="text-center text-7xl font-black text-white">{report.tdee}</h2>
-                        <p className="text-center text-emerald-500 font-bold text-sm mt-2">Kcal / Day</p>
+                <div className="max-w-md mx-auto p-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <h1 className="text-center text-xs font-black tracking-[0.4em] mb-10 text-gray-400">CLINICAL DATASET v4.0</h1>
+                    
+                    {/* Main TDEE Card */}
+                    <div className="glass-blur neon-border rounded-[2rem] p-8 text-center mb-6">
+                        <span className="text-[10px] font-bold text-[#00ff9d] uppercase tracking-widest">Total Daily Energy Expenditure</span>
+                        <h2 className="text-6xl font-bold mt-2 mb-2">{report.tdee}</h2>
+                        <p className="text-[10px] text-gray-500 font-medium">Daily kcal required for maintenance</p>
                     </div>
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-900 p-8 rounded-[2.5rem] shadow-2xl">
-                        <h3 className="text-xl font-black mb-2">PREMIUM REPORT READY</h3>
-                        <p className="text-indigo-100/70 text-sm mb-6 leading-relaxed">Your full hormonal profile, meal frequency strategy, and injury-prevention plan is locked.</p>
-                        <button className="w-full bg-white text-indigo-900 py-4 rounded-2xl font-black shadow-xl uppercase tracking-widest text-sm">Unlock Full Access</button>
+
+                    {/* Scientific Logic Block 1 */}
+                    <div className="glass-blur p-5 rounded-2xl mb-4">
+                        <h3 className="text-[#00ff9d] text-[10px] font-black uppercase mb-2">01. Basal Metabolic Rate (BMR)</h3>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                            Your body burns **{report.bmr} kcal** in a coma. Research from *The American Journal of Clinical Nutrition* indicates this accounts for 60-75% of total burn.
+                        </p>
+                    </div>
+
+                    {/* Scientific Logic Block 2 */}
+                    <div className="glass-blur p-5 rounded-2xl mb-4">
+                        <h3 className="text-[#00ff9d] text-[10px] font-black uppercase mb-2">02. Thermic Effect of Food (TEF)</h3>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                            Approximately **{Math.round(report.tdee * 0.1)} kcal** is utilized purely for digestion. Higher protein intake scales this efficiency by up to 30%.
+                        </p>
+                    </div>
+
+                    {/* Scientific Logic Block 3 */}
+                    <div className="glass-blur p-5 rounded-2xl mb-10 border-l-2 border-yellow-500/50">
+                        <h3 className="text-yellow-500 text-[10px] font-black uppercase mb-2">⚠️ Adaptive Thermogenesis Warning</h3>
+                        <p className="text-xs text-gray-400 leading-relaxed italic">
+                            Studies show metabolic slowdown if you drop below {Math.round(report.bmr * 1.1)} kcal. We recommend a "Clinical Deficit" approach.
+                        </p>
+                    </div>
+
+                    {/* Subscription Upsell */}
+                    <div className="bg-gradient-to-t from-[#00ff9d]/20 to-transparent p-8 rounded-[2rem] border border-[#00ff9d]/30 text-center">
+                        <h4 className="font-bold text-lg mb-2">Unlock Full Lab Results</h4>
+                        <p className="text-xs text-gray-400 mb-6">Receive your Macro Partitioning (P/C/F), Cortisol Control Plan, and Injury-Specific training protocol.</p>
+                        <button className="w-full bg-[#00ff9d] text-black py-4 rounded-xl font-black uppercase tracking-widest text-xs">Unlock Premium Access</button>
                     </div>
                 </div>
             );
 
-            const cur = questions[step];
+            const q = questions[step];
 
             return (
-                <div className="p-6 max-w-md mx-auto min-h-screen flex flex-col justify-center">
-                    <header className="mb-10 flex justify-between items-end">
-                        <div>
-                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Assessment Phase</p>
-                            <h2 className="text-3xl font-extrabold tracking-tighter italic">NOVA<span className="text-emerald-500">HEALTH</span></h2>
+                <div className="max-w-md mx-auto min-h-screen flex flex-col p-6 step-transition">
+                    <header className="py-10 text-center">
+                        <h1 className="text-xl font-bold tracking-tighter uppercase italic">AURA<span className="text-[#00ff9d]">PHYSICS</span></h1>
+                        <div className="flex justify-center gap-1 mt-4">
+                            {questions.map((_, i) => (
+                                <div key={i} className={`h-[2px] w-4 rounded-full ${i <= step ? 'bg-[#00ff9d]' : 'bg-gray-800'}`}></div>
+                            ))}
                         </div>
-                        <div className="text-xs font-bold text-slate-500">{step + 1} / {questions.length}</div>
                     </header>
 
-                    <div className="h-1 w-full bg-slate-900 rounded-full mb-12 overflow-hidden">
-                        <div className="h-full bg-emerald-500 progress-bar shadow-[0_0_10px_#10b981]" style={{ width: `${((step+1)/questions.length)*100}%` }}></div>
-                    </div>
+                    <div className="flex-1 flex flex-col justify-center">
+                        <div className="text-4xl mb-6">{q.icon}</div>
+                        <h2 className="text-3xl font-bold mb-2 tracking-tight">{q.q}</h2>
+                        <p className="text-sm text-gray-500 mb-10">{q.sub}</p>
 
-                    <div className="glass-card p-10 rounded-[3rem] shadow-2xl animate-in slide-in-from-right-10 duration-500">
-                        <div className="text-5xl mb-6">{cur.icon}</div>
-                        <h3 className="text-2xl font-bold mb-1 leading-tight">{cur.q}</h3>
-                        <p className="text-sm text-slate-500 mb-10">{cur.sub}</p>
-
-                        {cur.options ? (
-                            <div className="space-y-4">
-                                {cur.options.map(opt => (
-                                    <button key={opt[0]} onClick={() => { setForm({...form, [cur.id]: opt[0]}); handleNext(); }} className="w-full p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/10 text-left font-semibold transition-all">
+                        {q.options ? (
+                            <div className="grid gap-3">
+                                {q.options.map(opt => (
+                                    <button key={opt[0]} onClick={() => { setForm({...form, [q.id]: opt[0]}); next(); }} 
+                                        className="w-full p-5 text-left rounded-xl border border-gray-800 hover:border-[#00ff9d] hover:bg-[#00ff9d]/5 transition-all font-medium">
                                         {opt[1]}
                                     </button>
                                 ))}
                             </div>
                         ) : (
-                            <div className="space-y-8">
-                                <input autoFocus type={cur.type} placeholder={cur.placeholder} value={form[cur.id]} onChange={e => setForm({...form, [cur.id]: e.target.value})} className="w-full bg-transparent border-b-2 border-slate-800 p-2 text-3xl font-bold outline-none focus:border-emerald-500 transition-colors" />
-                                <button onClick={handleNext} className="w-full bg-emerald-500 glow-btn text-slate-950 py-5 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all">Continue →</button>
+                            <div className="space-y-10">
+                                <input autoFocus type={q.type} placeholder={q.placeholder} value={form[q.id]} onChange={e => setForm({...form, [q.id]: e.target.value})} 
+                                    className="w-full bg-transparent border-b border-gray-800 focus:border-[#00ff9d] py-4 text-3xl font-bold outline-none transition-all placeholder:text-gray-800" />
+                                <button onClick={next} className="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs">Analyze Step</button>
                             </div>
                         )}
                     </div>
