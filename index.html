@@ -2,83 +2,130 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NovaHealth 🔬</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AuraHealth Premium 🔬</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Outfit', 'sans-serif'] } } }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(135deg, #4ade80 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .liquid-bg { background: radial-gradient(circle at 50% -20%, #1e293b 0%, #0f172a 100%); }
+    </style>
 </head>
-<body class="bg-[#0f172a]">
+<body class="liquid-bg text-slate-100 min-h-screen overflow-x-hidden">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
-
-        const scienceEngine = {
-          calculate: (data) => {
-            const { weight, height, age, sex, goal, medical } = data;
-            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
-            bmr = (sex === 'male') ? bmr + 5 : bmr - 161;
-            const tdee = bmr * 1.55;
-            let target = (goal === 'lose') ? tdee - 500 : (goal === 'gain') ? tdee + 500 : tdee;
-            return {
-              bmr: Math.round(bmr),
-              tdee: Math.round(tdee),
-              target: Math.round(target),
-              protein: Math.round(weight * (goal === 'gain' ? 2.2 : 1.8)),
-              carbs: Math.round((target * 0.45) / 4),
-              fats: Math.round((target * 0.25) / 9),
-              safety: medical.toLowerCase().includes('knee') ? "Focus on low-impact (Zone 2 cardio)." : "Optimize for high-intensity training."
-            };
-          }
-        };
+        const { useState, useEffect } = React;
 
         function App() {
-            const [inputs, setInputs] = useState({ weight: 70, height: 170, age: 25, sex: 'male', goal: 'maintain', medical: '' });
+            const [step, setStep] = useState(0);
+            const [data, setData] = useState({ w: '', h: '', a: '', s: 'male', goal: 'gain', sleep: '7', stress: 'low', medical: '' });
             const [report, setReport] = useState(null);
-            const [premium, setPremium] = useState(false);
+            const [loading, setLoading] = useState(false);
+
+            const calculate = () => {
+                setLoading(true);
+                setTimeout(() => {
+                    let bmr = (10 * data.w) + (6.25 * data.h) - (5 * data.a) + (data.s === 'male' ? 5 : -161);
+                    const tdee = Math.round(bmr * 1.55);
+                    setReport({ tdee, bmr: Math.round(bmr), protein: Math.round(data.w * 2.2) });
+                    setLoading(false);
+                }, 2000);
+            };
+
+            const questions = [
+                { id: 'w', q: 'What is your current weight?', sub: 'In kilograms (kg)', icon: '⚖️', type: 'number' },
+                { id: 'h', q: 'Your standing height?', sub: 'In centimeters (cm)', icon: '📏', type: 'number' },
+                { id: 'a', q: 'How many years young?', sub: 'Biological age', icon: '🎂', type: 'number' },
+                { id: 'goal', q: 'What is your primary target?', sub: 'Scientific focus', icon: '🎯', options: [['lose', 'Fat Loss 📉'], ['gain', 'Muscle Hypertrophy 💪'], ['maintain', 'Health & Longevity ✨']] },
+                { id: 'sleep', q: 'Avg nightly sleep?', sub: 'Recovery metric', icon: '😴', options: [['6', '< 6 Hours'], ['7', '7-8 Hours'], ['9', '9+ Hours']] },
+                { id: 'stress', q: 'Current stress level?', sub: 'Cortisol check', icon: '🧠', options: [['low', 'Low / Balanced'], ['med', 'Moderate'], ['high', 'High / Intense']] }
+            ];
+
+            if (report) return (
+                <div className="p-6 max-w-md mx-auto animate-in fade-in duration-1000">
+                    <header className="text-center mb-10">
+                        <span className="text-xs font-black tracking-[0.3em] text-blue-400 uppercase">Analysis Complete</span>
+                        <h1 className="text-4xl font-black mt-2 italic">YOUR <span className="gradient-text">AURA</span></h1>
+                    </header>
+
+                    <div className="glass rounded-[3rem] p-8 text-center shadow-2xl relative overflow-hidden mb-6">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-blue-500"></div>
+                        <p className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-widest">Metabolic Capacity</p>
+                        <h2 className="text-7xl font-black tracking-tighter text-white">{report.tdee}</h2>
+                        <p className="text-xs text-green-400 font-bold mt-2 uppercase">Recommended kcal / Day</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                        <div className="glass p-5 rounded-3xl text-center border-emerald-500/20">
+                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Basal Rate</p>
+                            <p className="text-xl font-bold">{report.bmr} kcal</p>
+                        </div>
+                        <div className="glass p-5 rounded-3xl text-center border-blue-500/20">
+                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Protein Synthesis</p>
+                            <p className="text-xl font-bold text-blue-400">{report.protein}g</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-indigo-600 to-purple-800 p-8 rounded-[2.5rem] shadow-xl text-center">
+                        <h3 className="text-xl font-bold mb-2">💎 Unlock Premium Report</h3>
+                        <p className="text-sm text-indigo-100/70 mb-6 leading-relaxed">Get a full 7-day meal plan based on your Cortisol and Sleep metrics.</p>
+                        <button className="w-full bg-white text-indigo-900 py-4 rounded-2xl font-black text-lg shadow-xl uppercase tracking-widest">Subscribe Now</button>
+                    </div>
+                </div>
+            );
 
             return (
-                <div className="min-h-screen text-white p-6 font-sans flex justify-center">
-                    <div className="w-full max-w-md">
-                        <div className="text-center mb-8">
-                            <h1 className="text-4xl font-black tracking-tighter text-green-400 italic">NOVAHEALTH 🔬</h1>
-                            <p className="text-slate-400 text-xs mt-1 uppercase tracking-widest">Scientific Protocol v1.0</p>
-                        </div>
+                <div className="p-6 max-w-md mx-auto flex flex-col min-h-screen">
+                    <header className="py-8 text-center">
+                        <h1 className="text-2xl font-black tracking-tighter italic"><span className="gradient-text">AURA</span>HEALTH PRO</h1>
+                    </header>
 
-                        {!report ? (
-                            <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-[2.5rem] border border-slate-700 shadow-2xl space-y-4">
-                                <input type="number" placeholder="Weight (kg)" className="w-full bg-slate-900 p-4 rounded-2xl border border-slate-700 outline-none focus:border-green-400" onChange={e => setInputs({...inputs, weight: Number(e.target.value)})} />
-                                <input type="number" placeholder="Height (cm)" className="w-full bg-slate-900 p-4 rounded-2xl border border-slate-700 outline-none focus:border-green-400" onChange={e => setInputs({...inputs, height: Number(e.target.value)})} />
-                                <select className="w-full bg-slate-900 p-4 rounded-2xl border border-slate-700 text-slate-300" onChange={e => setInputs({...inputs, goal: e.target.value})}>
-                                    <option value="maintain">Goal: Longevity & Tone</option>
-                                    <option value="lose">Goal: Fat Loss</option>
-                                    <option value="gain">Goal: Muscle Build</option>
-                                </select>
-                                <button onClick={() => setReport(scienceEngine.calculate(inputs))} className="w-full bg-green-400 text-black py-5 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition-all">ANALYZE BIOMETRICS</button>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                <div className="bg-gradient-to-br from-green-500 to-emerald-700 p-8 rounded-[2.5rem] text-center shadow-xl">
-                                    <p className="text-xs font-bold opacity-80 uppercase mb-1">Target Daily Energy</p>
-                                    <h2 className="text-6xl font-black tracking-tighter">{report.target}</h2>
-                                    <p className="text-xs font-medium bg-black/20 inline-block px-3 py-1 rounded-full mt-2">Calories / Day</p>
+                    {loading ? (
+                        <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+                            <div className="w-12 h-12 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Synthesizing Clinical Data...</p>
+                        </div>
+                    ) : (
+                        <div className="flex-1 flex flex-col justify-center">
+                            <div className="mb-4 flex justify-between items-center px-2">
+                                <span className="text-[10px] font-black text-slate-500 uppercase">Step {step + 1} of {questions.length}</span>
+                                <div className="h-1 w-32 bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-green-400 transition-all duration-500" style={{ width: `${((step + 1) / questions.length) * 100}%` }}></div>
                                 </div>
-                                
-                                {!premium ? (
-                                    <button onClick={() => setPremium(true)} className="w-full bg-blue-600 py-4 rounded-2xl font-bold shadow-lg">Unlock Scientific Macro-Split 💎</button>
+                            </div>
+
+                            <div className="glass p-10 rounded-[3rem] shadow-2xl border-white/5 animate-in slide-in-from-right duration-500">
+                                <div className="text-4xl mb-6">{questions[step].icon}</div>
+                                <h2 className="text-2xl font-black mb-1 leading-tight">{questions[step].q}</h2>
+                                <p className="text-sm text-slate-400 mb-8">{questions[step].sub}</p>
+
+                                {questions[step].options ? (
+                                    <div className="space-y-3">
+                                        {questions[step].options.map(opt => (
+                                            <button key={opt[0]} onClick={() => { setData({...data, [questions[step].id]: opt[0]}); step < questions.length - 1 ? setStep(step + 1) : calculate(); }} className="w-full p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-left font-semibold transition-all">
+                                                {opt[1]}
+                                            </button>
+                                        ))}
+                                    </div>
                                 ) : (
-                                    <div className="bg-slate-800 p-6 rounded-[2rem] border border-blue-500/30 space-y-3">
-                                        <div className="flex justify-between text-sm border-b border-white/5 pb-2"><span>Protein</span><span className="font-bold">{report.protein}g</span></div>
-                                        <div className="flex justify-between text-sm border-b border-white/5 pb-2"><span>Carbs</span><span className="font-bold">{report.carbs}g</span></div>
-                                        <p className="text-[10px] text-yellow-500 font-bold mt-2 uppercase">Safety Note: {report.safety}</p>
+                                    <div className="space-y-6">
+                                        <input autoFocus type={questions[step].type} value={data[questions[step].id]} onChange={e => setData({...data, [questions[step].id]: e.target.value})} className="w-full bg-transparent border-b-2 border-slate-700 p-2 text-3xl font-bold outline-none focus:border-green-400 transition-colors" />
+                                        <button onClick={() => step < questions.length - 1 ? setStep(step + 1) : calculate()} className="w-full bg-green-500 text-slate-950 py-5 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-green-500/20">Continue</button>
                                     </div>
                                 )}
-                                <button onClick={() => setReport(null)} className="w-full text-xs text-slate-500 underline uppercase tracking-widest">Restart Engine</button>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             );
         }
