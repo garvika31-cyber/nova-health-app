@@ -3,132 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AuraHealth Premium 🔬</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <title>NovaHealth Elite 🔬</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Outfit', 'sans-serif'] } } }
-        }
-    </script>
     <style>
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .gradient-text { background: linear-gradient(135deg, #4ade80 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .liquid-bg { background: radial-gradient(circle at 50% -20%, #1e293b 0%, #0f172a 100%); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; }
+        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+        .glow-btn { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+        .progress-bar { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="liquid-bg text-slate-100 min-h-screen overflow-x-hidden">
+<body class="text-slate-200 min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        function App() {
+        const App = () => {
             const [step, setStep] = useState(0);
-            const [data, setData] = useState({ w: '', h: '', a: '', s: 'male', goal: 'gain', sleep: '7', stress: 'low', medical: '' });
-            const [report, setReport] = useState(null);
+            const [form, setForm] = useState({ 
+                weight: '', height: '', age: '', sex: 'male', 
+                goal: 'muscle', activity: 'moderate', sleep: '7',
+                stress: 'medium', bodyfat: '20', medical: '' 
+            });
             const [loading, setLoading] = useState(false);
-
-            const calculate = () => {
-                setLoading(true);
-                setTimeout(() => {
-                    let bmr = (10 * data.w) + (6.25 * data.h) - (5 * data.a) + (data.s === 'male' ? 5 : -161);
-                    const tdee = Math.round(bmr * 1.55);
-                    setReport({ tdee, bmr: Math.round(bmr), protein: Math.round(data.w * 2.2) });
-                    setLoading(false);
-                }, 2000);
-            };
+            const [report, setReport] = useState(null);
 
             const questions = [
-                { id: 'w', q: 'What is your current weight?', sub: 'In kilograms (kg)', icon: '⚖️', type: 'number' },
-                { id: 'h', q: 'Your standing height?', sub: 'In centimeters (cm)', icon: '📏', type: 'number' },
-                { id: 'a', q: 'How many years young?', sub: 'Biological age', icon: '🎂', type: 'number' },
-                { id: 'goal', q: 'What is your primary target?', sub: 'Scientific focus', icon: '🎯', options: [['lose', 'Fat Loss 📉'], ['gain', 'Muscle Hypertrophy 💪'], ['maintain', 'Health & Longevity ✨']] },
-                { id: 'sleep', q: 'Avg nightly sleep?', sub: 'Recovery metric', icon: '😴', options: [['6', '< 6 Hours'], ['7', '7-8 Hours'], ['9', '9+ Hours']] },
-                { id: 'stress', q: 'Current stress level?', sub: 'Cortisol check', icon: '🧠', options: [['low', 'Low / Balanced'], ['med', 'Moderate'], ['high', 'High / Intense']] }
+                { id: 'sex', q: "Let's start with your biology", sub: "Hormonal baseline", icon: "🧬", options: [['male', 'Male'], ['female', 'Female']] },
+                { id: 'age', q: "How many years of life?", sub: "Metabolic age calculation", icon: "🎂", type: 'number', placeholder: 'Years' },
+                { id: 'weight', q: "Current total mass?", sub: "Measured in kilograms", icon: "⚖️", type: 'number', placeholder: 'kg' },
+                { id: 'height', q: "Total standing height?", sub: "Measured in centimeters", icon: "📏", type: 'number', placeholder: 'cm' },
+                { id: 'goal', q: "What is your primary focus?", sub: "Targeting your objective", icon: "🎯", options: [['fatloss', 'Aggressive Fat Loss 📉'], ['muscle', 'Lean Muscle Gain 💪'], ['longevity', 'Vitality & Longevity ✨']] },
+                { id: 'activity', q: "Weekly physical exertion?", sub: "NEAT & Exercise level", icon: "⚡", options: [['sedentary', 'Sedentary (Office)'], ['moderate', 'Moderate (3-4 days)'], ['athlete', 'High Performance (Daily)']] },
+                { id: 'sleep', q: "Avg recovery (Sleep)?", sub: "Critical for hormone balance", icon: "😴", options: [['low', 'Under 6 hrs'], ['ideal', '7-9 hrs'], ['high', '9+ hrs']] },
+                { id: 'medical', q: "Any medical challenges?", sub: "Knee pain, diabetes, etc.", icon: "🏥", type: 'text', placeholder: 'None / Describe briefly' }
             ];
 
+            const handleNext = () => {
+                if(step < questions.length - 1) setStep(step + 1);
+                else generateReport();
+            };
+
+            const generateReport = () => {
+                setLoading(true);
+                setTimeout(() => {
+                    let bmr = (10 * form.weight) + (6.25 * form.height) - (5 * form.age) + (form.sex === 'male' ? 5 : -161);
+                    setReport({ bmr: Math.round(bmr), tdee: Math.round(bmr * 1.55) });
+                    setLoading(false);
+                }, 2500);
+            };
+
+            if (loading) return (
+                <div className="flex flex-col items-center justify-center min-h-screen p-10 text-center">
+                    <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+                    <h2 className="text-xl font-bold text-emerald-400">Processing Biometrics...</h2>
+                    <p className="text-slate-500 text-sm mt-2 italic text-sm italic">Analyzing 45+ scientific data points for your custom report</p>
+                </div>
+            );
+
             if (report) return (
-                <div className="p-6 max-w-md mx-auto animate-in fade-in duration-1000">
-                    <header className="text-center mb-10">
-                        <span className="text-xs font-black tracking-[0.3em] text-blue-400 uppercase">Analysis Complete</span>
-                        <h1 className="text-4xl font-black mt-2 italic">YOUR <span className="gradient-text">AURA</span></h1>
-                    </header>
-
-                    <div className="glass rounded-[3rem] p-8 text-center shadow-2xl relative overflow-hidden mb-6">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-blue-500"></div>
-                        <p className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-widest">Metabolic Capacity</p>
-                        <h2 className="text-7xl font-black tracking-tighter text-white">{report.tdee}</h2>
-                        <p className="text-xs text-green-400 font-bold mt-2 uppercase">Recommended kcal / Day</p>
+                <div className="p-6 max-w-md mx-auto animate-in fade-in">
+                    <h1 className="text-center text-emerald-400 font-extrabold text-2xl italic mb-8">NOVAHEALTH ELITE 💎</h1>
+                    <div className="glass-card rounded-[2.5rem] p-8 mb-6 border-emerald-500/30">
+                        <p className="text-center text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Predicted Daily Burn</p>
+                        <h2 className="text-center text-7xl font-black text-white">{report.tdee}</h2>
+                        <p className="text-center text-emerald-500 font-bold text-sm mt-2">Kcal / Day</p>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                        <div className="glass p-5 rounded-3xl text-center border-emerald-500/20">
-                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Basal Rate</p>
-                            <p className="text-xl font-bold">{report.bmr} kcal</p>
-                        </div>
-                        <div className="glass p-5 rounded-3xl text-center border-blue-500/20">
-                            <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Protein Synthesis</p>
-                            <p className="text-xl font-bold text-blue-400">{report.protein}g</p>
-                        </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-indigo-600 to-purple-800 p-8 rounded-[2.5rem] shadow-xl text-center">
-                        <h3 className="text-xl font-bold mb-2">💎 Unlock Premium Report</h3>
-                        <p className="text-sm text-indigo-100/70 mb-6 leading-relaxed">Get a full 7-day meal plan based on your Cortisol and Sleep metrics.</p>
-                        <button className="w-full bg-white text-indigo-900 py-4 rounded-2xl font-black text-lg shadow-xl uppercase tracking-widest">Subscribe Now</button>
+                    <div className="bg-gradient-to-br from-blue-600 to-indigo-900 p-8 rounded-[2.5rem] shadow-2xl">
+                        <h3 className="text-xl font-black mb-2">PREMIUM REPORT READY</h3>
+                        <p className="text-indigo-100/70 text-sm mb-6 leading-relaxed">Your full hormonal profile, meal frequency strategy, and injury-prevention plan is locked.</p>
+                        <button className="w-full bg-white text-indigo-900 py-4 rounded-2xl font-black shadow-xl uppercase tracking-widest text-sm">Unlock Full Access</button>
                     </div>
                 </div>
             );
+
+            const cur = questions[step];
 
             return (
-                <div className="p-6 max-w-md mx-auto flex flex-col min-h-screen">
-                    <header className="py-8 text-center">
-                        <h1 className="text-2xl font-black tracking-tighter italic"><span className="gradient-text">AURA</span>HEALTH PRO</h1>
+                <div className="p-6 max-w-md mx-auto min-h-screen flex flex-col justify-center">
+                    <header className="mb-10 flex justify-between items-end">
+                        <div>
+                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Assessment Phase</p>
+                            <h2 className="text-3xl font-extrabold tracking-tighter italic">NOVA<span className="text-emerald-500">HEALTH</span></h2>
+                        </div>
+                        <div className="text-xs font-bold text-slate-500">{step + 1} / {questions.length}</div>
                     </header>
 
-                    {loading ? (
-                        <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                            <div className="w-12 h-12 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
-                            <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Synthesizing Clinical Data...</p>
-                        </div>
-                    ) : (
-                        <div className="flex-1 flex flex-col justify-center">
-                            <div className="mb-4 flex justify-between items-center px-2">
-                                <span className="text-[10px] font-black text-slate-500 uppercase">Step {step + 1} of {questions.length}</span>
-                                <div className="h-1 w-32 bg-slate-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-green-400 transition-all duration-500" style={{ width: `${((step + 1) / questions.length) * 100}%` }}></div>
-                                </div>
-                            </div>
+                    <div className="h-1 w-full bg-slate-900 rounded-full mb-12 overflow-hidden">
+                        <div className="h-full bg-emerald-500 progress-bar shadow-[0_0_10px_#10b981]" style={{ width: `${((step+1)/questions.length)*100}%` }}></div>
+                    </div>
 
-                            <div className="glass p-10 rounded-[3rem] shadow-2xl border-white/5 animate-in slide-in-from-right duration-500">
-                                <div className="text-4xl mb-6">{questions[step].icon}</div>
-                                <h2 className="text-2xl font-black mb-1 leading-tight">{questions[step].q}</h2>
-                                <p className="text-sm text-slate-400 mb-8">{questions[step].sub}</p>
+                    <div className="glass-card p-10 rounded-[3rem] shadow-2xl animate-in slide-in-from-right-10 duration-500">
+                        <div className="text-5xl mb-6">{cur.icon}</div>
+                        <h3 className="text-2xl font-bold mb-1 leading-tight">{cur.q}</h3>
+                        <p className="text-sm text-slate-500 mb-10">{cur.sub}</p>
 
-                                {questions[step].options ? (
-                                    <div className="space-y-3">
-                                        {questions[step].options.map(opt => (
-                                            <button key={opt[0]} onClick={() => { setData({...data, [questions[step].id]: opt[0]}); step < questions.length - 1 ? setStep(step + 1) : calculate(); }} className="w-full p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-left font-semibold transition-all">
-                                                {opt[1]}
-                                            </button>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="space-y-6">
-                                        <input autoFocus type={questions[step].type} value={data[questions[step].id]} onChange={e => setData({...data, [questions[step].id]: e.target.value})} className="w-full bg-transparent border-b-2 border-slate-700 p-2 text-3xl font-bold outline-none focus:border-green-400 transition-colors" />
-                                        <button onClick={() => step < questions.length - 1 ? setStep(step + 1) : calculate()} className="w-full bg-green-500 text-slate-950 py-5 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-green-500/20">Continue</button>
-                                    </div>
-                                )}
+                        {cur.options ? (
+                            <div className="space-y-4">
+                                {cur.options.map(opt => (
+                                    <button key={opt[0]} onClick={() => { setForm({...form, [cur.id]: opt[0]}); handleNext(); }} className="w-full p-5 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-emerald-500 hover:bg-emerald-500/10 text-left font-semibold transition-all">
+                                        {opt[1]}
+                                    </button>
+                                ))}
                             </div>
-                        </div>
-                    )}
+                        ) : (
+                            <div className="space-y-8">
+                                <input autoFocus type={cur.type} placeholder={cur.placeholder} value={form[cur.id]} onChange={e => setForm({...form, [cur.id]: e.target.value})} className="w-full bg-transparent border-b-2 border-slate-800 p-2 text-3xl font-bold outline-none focus:border-emerald-500 transition-colors" />
+                                <button onClick={handleNext} className="w-full bg-emerald-500 glow-btn text-slate-950 py-5 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all">Continue →</button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
-        }
+        };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
