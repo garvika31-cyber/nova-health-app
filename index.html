@@ -3,23 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AURAX | Precision Bio-Intelligence</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <title>Health Guide Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hgp-purple': '#5e35b1', // Deep Purple
+                        'hgp-brown': '#795548',  // Warm Brown
+                        'hgp-grey': '#f5f5f7',   // Light Stone Grey
+                        'hgp-dark': '#1c1c1e',  // Almost Black for text
+                    },
+                    fontFamily: { sans: ['Instrument Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
     <style>
-        :root { --accent: #00f2ff; --bg: #010409; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #f8fafc; margin: 0; }
-        .glass { background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .neon-glow { box-shadow: 0 0 30px rgba(0, 242, 255, 0.1); }
-        .frame-enter { animation: slideIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background-color: #f5f5f7; color: #1c1c1e; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(0,0,0,0.05); }
+        .step-transition { animation: fadeInScale 0.5s ease-out; }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .logo-gradient { background: linear-gradient(135deg, #5e35b1 0%, #7e57c2 100%); }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -32,15 +46,15 @@
             const [report, setReport] = useState(null);
 
             const steps = [
-                { id: 's', q: "Genetic Origin", sub: "Biological baseline for metabolic modeling", options: [['male', 'Male (XY)'], ['female', 'Female (XX)']], icon: "🧬" },
-                { id: 'age', q: "Chronological Age", sub: "Calculates cellular turnover rate", icon: "⏳", type: 'number', placeholder: 'Years' },
-                { id: 'weight', q: "System Mass", sub: "Total gravitational weight (kg)", icon: "⚖️", type: 'number', placeholder: 'Kg' },
-                { id: 'height', q: "Vertical Stature", sub: "Height for BMI & Lean Mass scaling", icon: "📏", type: 'number', placeholder: 'Cm' },
-                { id: 'waist', q: "Core Midpoint", sub: "Waist circumference at navel level", icon: "📐", type: 'number', placeholder: 'Cm' },
-                { id: 'neck', q: "Superior Girth", sub: "Neck measurement for Navy BF% formula", icon: "🦒", type: 'number', placeholder: 'Cm' },
-                ...(form.s === 'female' ? [{ id: 'hip', q: "Pelvic Girth", sub: "Widest point measurement (Required for XX)", icon: "📐", type: 'number', placeholder: 'Cm' }] : []),
-                { id: 'sleep', q: "Neural Recovery", sub: "Average nightly sleep duration", icon: "🌙", type: 'number', placeholder: 'Hours' },
-                { id: 'goal', q: "Primary Directive", sub: "Targeted physiological outcome", options: [['loss', 'Lipid Oxidation 📉'], ['maintain', 'Homeostasis ✨'], ['gain', 'Tissue Synthesis 💪']], icon: "🎯" }
+                { id: 's', q: "Let's begin with your gender", sub: "This helps us tailor your biological results.", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "🌱" },
+                { id: 'age', q: "How old are you?", sub: "Age influences your metabolism.", icon: "🎂", type: 'number', placeholder: 'Years' },
+                { id: 'weight', q: "What is your current weight?", sub: "In kilograms (kg), please.", icon: "⚖️", type: 'number', placeholder: 'Kg' },
+                { id: 'height', q: "And your height?", sub: "In centimeters (cm).", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'waist', q: "Measure your waist line", sub: "Right at your belly button.", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'neck', q: "Now, measure your neck girth", sub: "Just below your Adam's apple.", icon: "🦒", type: 'number', placeholder: 'Cm' },
+                ...(form.s === 'female' ? [{ id: 'hip', q: "Lastly, your hip measurement", sub: "At the widest part of your hips.", icon: "📏", type: 'number', placeholder: 'Cm' }] : []),
+                { id: 'sleep', q: "How much sleep do you get?", sub: "On average, per night.", icon: "🌙", type: 'number', placeholder: 'Hours' },
+                { id: 'goal', q: "What is your main health goal?", sub: "This defines your personalized plan.", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']], icon: "🎯" }
             ];
 
             const executeAnalysis = () => {
@@ -49,67 +63,73 @@
                     const { weight, height, age, s, waist, neck, hip, sleep, goal } = form;
                     let bmr = (10*weight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161);
                     let tdee = Math.round(bmr * 1.55);
-                    if(goal === "loss") tdee -= 450;
-                    if(goal === "gain") tdee += 350;
+                    if(goal === "loss") tdee -= 400;
+                    if(goal === "gain") tdee += 300;
                     let bmi = (weight / ((height/100)**2)).toFixed(1);
                     let fat = s === "male" 
                         ? (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76)
                         : (163.205 * Math.log10(Number(waist) + Number(hip) - neck) - 97.684 * Math.log10(height) - 78.387);
                     
-                    setReport({ tdee, bmr: Math.round(bmr), fat: fat.toFixed(1), bmi, score: Math.max(55, 100 - (Math.abs(bmi-22)*3)) });
+                    setReport({ tdee, bmr: Math.round(bmr), fat: fat.toFixed(1), bmi, score: Math.max(60, 100 - (Math.abs(bmi-23)*4)) });
                     setLoading(false);
                 }, 2600);
             };
 
             const next = () => step < steps.length - 1 ? setStep(step + 1) : executeAnalysis();
 
+            // --- HEADER COMPONENT ---
+            const Header = () => (
+                <div className="flex justify-center mb-12 mt-4">
+                    <div className="flex items-center gap-3 logo-gradient p-4 px-6 rounded-full shadow-lg">
+                        <div className="text-white text-3xl">🛡️</div>
+                        <h1 className="text-2xl font-extrabold text-white tracking-tighter">Health<span className="opacity-70">Guide</span><span className="font-light opacity-60">Pro</span></h1>
+                    </div>
+                </div>
+            );
+
             if (loading) return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-10 bg-[#010409]">
-                    <div className="w-14 h-14 border-b-2 border-[#00f2ff] rounded-full animate-spin"></div>
-                    <p className="mt-8 text-[10px] font-black tracking-[0.5em] text-[#00f2ff] uppercase animate-pulse">Synchronizing Data</p>
+                <div className="min-h-screen flex flex-col items-center justify-center p-10 bg-hgp-grey">
+                    <div className="w-12 h-12 border-4 border-hgp-purple border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-6 text-sm font-semibold text-hgp-brown animate-pulse">Building your personalized guide...</p>
                 </div>
             );
 
             if (report) return (
-                <div className="max-w-md mx-auto p-6 frame-enter pb-20">
-                    <header className="text-center py-10">
-                        <h1 className="text-xl font-black italic tracking-tighter uppercase underline decoration-[#00f2ff] decoration-2 underline-offset-8">AURA<span className="text-[#00f2ff]">X</span> ELITE</h1>
-                    </header>
+                <div className="max-w-md mx-auto step-transition pb-20">
+                    <Header />
                     
-                    <div className="glass rounded-[2.5rem] p-10 text-center mb-8 neon-glow border-[#00f2ff]/20">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Biometric Score</p>
-                        <h2 className="text-7xl font-black italic">{Math.round(report.score)}<span className="text-xl not-italic opacity-20">/100</span></h2>
+                    <div className="bg-white rounded-3xl p-10 text-center mb-8 shadow-sm border border-slate-100">
+                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Overall Wellness Score</p>
+                        <h2 className="text-8xl font-extrabold text-hgp-purple tracking-tighter">{Math.round(report.score)}<span className="text-xl font-medium text-slate-300">/100</span></h2>
                     </div>
 
                     <div className="grid gap-4 mb-10">
-                        <div className="glass p-6 rounded-3xl border-l-4 border-[#00f2ff]">
-                            <h3 className="text-[#00f2ff] text-[10px] font-black uppercase tracking-widest mb-1">Metabolic Power</h3>
-                            <p className="text-2xl font-black">{report.tdee} <span className="text-xs font-normal opacity-40">kcal/day</span></p>
-                            <p className="text-[11px] text-slate-400 mt-2">The energy needed for your <strong>{form.goal}</strong> directive without metabolic crash.</p>
+                        {/* RESULT 1 */}
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 className="text-hgp-purple text-xs font-bold uppercase tracking-widest mb-1">Daily Energy Needs</h3>
+                            <p className="text-3xl font-extrabold text-hgp-dark">{report.tdee} <span className="text-sm font-normal text-slate-500">Calories/Day</span></p>
+                            <p className="text-sm text-slate-600 mt-2 leading-relaxed">This is your "Budget." Eating this amount will help you reach your <strong>{form.goal === 'loss' ? 'Fat Loss' : form.goal === 'gain' ? 'Muscle Gain' : 'Health Maintenance'}</strong> goal safely.</p>
                         </div>
-                        <div className="glass p-6 rounded-3xl border-l-4 border-purple-500">
-                            <h3 className="text-purple-400 text-[10px] font-black uppercase tracking-widest mb-1">Adipose Ratio</h3>
-                            <p className="text-2xl font-black">{report.fat}% <span className="text-xs font-normal opacity-40">Body Fat</span></p>
-                            <p className="text-[11px] text-slate-400 mt-2">Calculated via the Clinical Navy Protocol. This represents your literal fat-to-muscle split.</p>
+                        {/* RESULT 2 */}
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <h3 className="text-hgp-brown text-xs font-bold uppercase tracking-widest mb-1">Body Fat Percentage</h3>
+                            <p className="text-3xl font-extrabold text-hgp-dark">{report.fat}% <span className="text-sm font-normal text-slate-500">Body Fat</span></p>
+                            <p className="text-sm text-slate-600 mt-2 leading-relaxed">This number tells you the true composition of your body (Fat vs. Muscle), which is much more important than just your weight.</p>
                         </div>
-                        <div className="glass p-6 rounded-3xl border-l-4 border-emerald-500">
-                            <h3 className="text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-1">Maintenance Cost (BMR)</h3>
-                            <p className="text-2xl font-black">{report.bmr} <span className="text-xs font-normal opacity-40">kcal</span></p>
-                            <p className="text-[11px] text-slate-400 mt-2">Your system's "static" energy requirement. Think of this as your heart and brain's base fuel.</p>
-                        </div>
-                        <div className="glass p-6 rounded-3xl border-l-4 border-orange-500">
-                            <h3 className="text-orange-400 text-[10px] font-black uppercase tracking-widest mb-1">Composition Index (BMI)</h3>
-                            <p className="text-2xl font-black">{report.bmi} <span className="text-xs font-normal opacity-40">Ratio</span></p>
-                            <p className="text-[11px] text-slate-400 mt-2">Your height-to-weight structural score. It assesses if your frame is carrying a healthy load.</p>
+                        {/* RESULT 3 */}
+                        <div className="glass-card p-6 rounded-2xl shadow-inner bg-slate-100">
+                            <h3 className="text-slate-600 text-[11px] font-bold uppercase tracking-widest mb-1">Body Mass Index (BMI)</h3>
+                            <p className="text-2xl font-extrabold text-hgp-dark">{report.bmi} <span className="text-sm font-normal text-slate-500">Ratio</span></p>
+                            <p className="text-sm text-slate-600 mt-2 leading-relaxed">A simple check that compares your height to your weight. This helps ensure your body isn't carrying too much stress.</p>
                         </div>
                     </div>
 
-                    <div className="bg-white text-black p-8 rounded-[2.5rem] shadow-2xl text-center">
-                        <h3 className="text-xl font-black mb-2 uppercase italic tracking-tighter">Upgrade to Clinical</h3>
-                        <p className="text-xs font-medium opacity-60 mb-6">Receive your personalized 7-Day Macro Blueprint & Hormone Strategy for <strong>₹199</strong>.</p>
-                        <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Hi, I want my Clinical Blueprint. Score: ${Math.round(report.score)}`)} 
-                            className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">
-                            Unlock via WhatsApp
+                    <div className="bg-hgp-dark text-white p-8 rounded-3xl shadow-xl text-center">
+                        <h3 className="text-2xl font-extrabold mb-2 tracking-tight">Your Full Guide is Ready</h3>
+                        <p className="text-sm font-medium opacity-70 mb-8 px-4 leading-relaxed">Unlock your complete 7-Day Meal Plan, customized Exercise Guide, and Sleep Routine for <strong>₹199</strong>.</p>
+                        <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Hi, I want my Personalized Health Guide. Score: ${Math.round(report.score)}`)} 
+                            className="w-full hgp-bg-purple bg-hgp-purple text-white py-5 rounded-full font-bold uppercase tracking-widest text-xs shadow-lg shadow-hgp-purple/30 active:scale-95 transition-all">
+                            Unlock My Complete Plan
                         </button>
                     </div>
                 </div>
@@ -118,27 +138,28 @@
             const cur = steps[step];
 
             return (
-                <div className="max-w-md mx-auto min-h-screen flex flex-col p-8 frame-enter">
-                    <header className="py-10 flex justify-between items-center">
-                        <h1 className="text-lg font-black tracking-tighter italic uppercase underline decoration-[#00f2ff] decoration-2 underline-offset-4">AURA<span className="text-[#00f2ff]">X</span></h1>
-                        <div className="text-[10px] font-black text-slate-700 tracking-[0.2em] uppercase">Phase {step + 1} / {steps.length}</div>
-                    </header>
+                <div className="max-w-md mx-auto min-h-screen flex flex-col step-transition pb-10">
+                    <Header />
 
                     <div className="flex-1 flex flex-col justify-center">
-                        <div className="text-4xl mb-4">{cur.icon}</div>
-                        <h2 className="text-4xl font-black mb-2 tracking-tighter uppercase italic">{cur.q}</h2>
-                        <p className="text-slate-500 text-sm mb-12 font-medium leading-relaxed">{cur.sub}</p>
+                        <div className="flex items-center gap-4 mb-10 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                            <div className="text-6xl">{cur.icon}</div>
+                            <div>
+                                <h2 className="text-2xl font-extrabold mb-1 tracking-tight text-hgp-dark">{cur.q}</h2>
+                                <p className="text-slate-500 text-sm font-medium leading-relaxed">{cur.sub}</p>
+                            </div>
+                        </div>
 
-                        <div className="glass p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden border-[#00f2ff]/10">
-                            <div className="absolute top-0 left-0 w-full h-[2px] bg-slate-900">
-                                <div className="h-full bg-[#00f2ff] shadow-[0_0_10px_#00f2ff] transition-all duration-700" style={{ width: `${((step+1)/steps.length)*100}%` }}></div>
+                        <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-[3px] bg-slate-100">
+                                <div className="h-full bg-hgp-purple transition-all duration-700" style={{ width: `${((step+1)/steps.length)*100}%` }}></div>
                             </div>
                             
                             {cur.options ? (
                                 <div className="grid gap-3 mt-4">
                                     {cur.options.map(o => (
                                         <button key={o[0]} onClick={() => { setForm({...form, [cur.id]: o[0]}); next(); }}
-                                            className="w-full p-5 text-left rounded-2xl border border-white/5 bg-white/5 hover:border-[#00f2ff]/40 transition-all font-bold text-[11px] uppercase tracking-widest">
+                                            className="w-full p-6 text-left rounded-2xl border border-slate-100 bg-slate-50 hover:border-hgp-purple/40 hover:bg-hgp-purple/5 transition-all font-semibold text-sm text-hgp-dark flex items-center gap-3">
                                             {o[1]}
                                         </button>
                                     ))}
@@ -146,9 +167,9 @@
                             ) : (
                                 <div className="mt-4">
                                     <input autoFocus type={cur.type} placeholder={cur.placeholder} value={form[cur.id]} onChange={e => setForm({...form, [cur.id]: e.target.value})}
-                                        className="w-full bg-transparent border-b-2 border-slate-900 focus:border-[#00f2ff] py-4 text-5xl font-black outline-none transition-all placeholder:text-slate-900 mb-10" />
-                                    <button onClick={next} className="w-full bg-[#00f2ff] text-black py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-lg shadow-[#00f2ff]/10 active:scale-95 transition-all">
-                                        Next Component
+                                        className="w-full bg-transparent border-b-2 border-slate-200 focus:border-hgp-purple p-4 text-6xl font-extrabold outline-none transition-all placeholder:text-slate-200 mb-10 text-hgp-purple" />
+                                    <button onClick={next} className="w-full bg-hgp-purple text-white py-5 rounded-full font-bold uppercase tracking-[0.2em] text-xs shadow-lg shadow-hgp-purple/20 active:scale-95 transition-all">
+                                        Next
                                     </button>
                                 </div>
                             )}
