@@ -1,246 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Health Guide Pro</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@700;800&family=Playfair+Display:ital,wght@1,900&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<script>
-tailwind.config = {
-theme: {
-extend: {
-colors: {
-'rich-plum': '#2D1B33',
-'premium-gold': '#D4AF37',
-'cream-bg': '#FDFCF8',
-'clay': '#795548',
-},
-fontFamily: { sans: ['Instrument Sans','sans-serif'], serif:['Playfair Display','serif'] }
-}
-}
-}
-</script>
-
-<style>
-body { background-color:#FDFCF8;color:#2D1B33; }
-.premium-card { background:#fff;border:1px solid rgba(45,27,51,0.08);box-shadow:0 20px 40px rgba(45,27,51,0.05); }
-.logo-shape {
-width:100px;height:100px;background:#2D1B33;
-clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-display:flex;align-items:center;justify-content:center;
-animation:float 4s ease-in-out infinite;
-border:3px solid #D4AF37;
-}
-@keyframes float {0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
-.target-tag {background:#FDFCF8;border:2px solid #D4AF37;color:#D4AF37;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;}
-.fade-up {animation:fadeUp 0.4s ease-out forwards;}
-@keyframes fadeUp {from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
-</style>
-</head>
-
-<body class="p-4 md:p-10">
-<div id="root"></div>
+<!-- ONLY showing modified parts so you can safely replace -->
 
 <script type="text/babel">
 const { useState } = React;
 
 const App = () => {
 
-const [step,setStep] = useState(0);
-const [form,setForm] = useState({ s:'male', goal:'maintain' });
-const [loading,setLoading] = useState(false);
-const [report,setReport] = useState(null);
-const [error,setError] = useState("");
+const [step, setStep] = useState(0);
+const [form, setForm] = useState({
+  age:'', height:'', weight:'', waist:'', neck:'', hip:'', sleep:'',
+  s:'male', goal:'maintain'
+});
+const [loading, setLoading] = useState(false);
+const [report, setReport] = useState(null);
+const [error, setError] = useState("");
 
-const steps = [
-{ id:'s', q:"Are you Male or Female?", options:[['male','👨‍💼 Male'],['female','👩‍💼 Female']] },
-{ id:'age', q:"How old are you?", type:'number' },
-{ id:'weight', q:"How much do you weigh?", type:'number' },
-{ id:'height', q:"How tall are you?", type:'number' },
-{ id:'waist', q:"Waist (cm)?", type:'number' },
-{ id:'neck', q:"Neck (cm)?", type:'number' },
-...(form.s==='female'?[{ id:'hip', q:"Hip (cm)?", type:'number' }]:[]),
-{ id:'sleep', q:"Sleep hours?", type:'number' },
-{ id:'goal', q:"Goal?", options:[['loss','Lose Fat 📉'],['maintain','Stay Healthy ✨'],['gain','Build Muscle 💪']] }
-];
-
+// ✅ NEW: validation
 const isValid = () => {
-const required = ['age','weight','height','waist','neck','sleep'];
-for(let key of required){
-if(!form[key] || Number(form[key])<=0) return false;
-}
-if(form.s==='female' && (!form.hip || form.hip<=0)) return false;
-return true;
+  const required = ['age','height','weight','waist','neck','sleep'];
+  for (let key of required) {
+    if (!form[key] || Number(form[key]) <= 0) return false;
+  }
+  if (form.s === 'female' && (!form.hip || Number(form.hip) <= 0)) return false;
+  return true;
 };
 
 const analyze = () => {
+  // ✅ SAFE NUMBERS
+  const weight = Number(form.weight);
+  const height = Number(form.height);
+  const age = Number(form.age);
+  const waist = Number(form.waist);
+  const neck = Number(form.neck);
+  const hip = Number(form.hip || 0);
 
-const age = Number(form.age);
-const weight = Number(form.weight);
-const height = Number(form.height);
-const waist = Number(form.waist);
-const neck = Number(form.neck);
-const hip = Number(form.hip || 0);
+  // ✅ FIX: body fat crash
+  if (waist <= neck) {
+    alert("Waist must be larger than neck");
+    return;
+  }
 
-if(waist <= neck){
-alert("Waist must be larger than neck");
-return;
-}
+  setLoading(true);
 
-setLoading(true);
+  setTimeout(() => {
+    let bmr = (10*weight) + (6.25*height) - (5*age) + (form.s === 'male' ? 5 : -161);
+    let tdee = Math.round(bmr * 1.5);
 
-setTimeout(()=>{
+    if(form.goal === "loss") tdee -= 400;
+    if(form.goal === "gain") tdee += 300;
 
-let bmr = (10*weight)+(6.25*height)-(5*age)+(form.s==='male'?5:-161);
-let tdee = Math.round(bmr*1.5);
+    let bmi = (weight / ((height/100)**2)).toFixed(1);
 
-if(form.goal==="loss") tdee-=400;
-if(form.goal==="gain") tdee+=300;
+    let fat = form.s === "male" 
+      ? (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76)
+      : (163.205 * Math.log10(waist + hip - neck) - 97.684 * Math.log10(height) - 78.387);
 
-let bmi = (weight/((height/100)**2)).toFixed(1);
+    let targetWeight = 22.0 * ((height/100)**2);
+    let targetBmr = Math.round((10*targetWeight) + (6.25*height) - (5*age) + (form.s === 'male' ? 5 : -161));
 
-let fat = form.s==="male"
-? (86.010*Math.log10(waist-neck)-70.041*Math.log10(height)+36.76)
-: (163.205*Math.log10(waist+hip-neck)-97.684*Math.log10(height)-78.387);
+    setReport({ 
+      tdee,
+      bmr: Math.round(bmr),
+      fat: Math.round(fat),
+      bmi,
+      score: Math.max(55, 100 - (Math.abs(bmi-22)*5)),
+      targetBmr,
+      targetBmi: "22.0",
+      targetFat: form.s === 'male' ? "15" : "22",
+      targetTdee: Math.round(targetBmr * 1.4)
+    });
 
-let insight = bmi>25
-? "You are above ideal weight. Losing 4-6 kg will boost energy."
-: bmi<18.5
-? "You are underweight. Gaining healthy mass will help."
-: "You are in a healthy range. Maintain consistency.";
-
-setReport({
-bmr:Math.round(bmr),
-tdee,
-bmi,
-fat:Math.round(fat),
-score:Math.max(55,100-Math.abs(bmi-22)*5),
-insight
-});
-
-setLoading(false);
-
-},1200);
+    setLoading(false);
+  }, 1200);
 };
 
+// ✅ UPDATED next()
 const next = () => {
-setError("");
-if(step===steps.length-1){
-if(!isValid()){
-setError("Fill all fields correctly");
-return;
-}
-analyze();
-}else{
-setStep(step+1);
-}
+  setError("");
+
+  if (step === steps.length - 1) {
+    if (!isValid()) {
+      setError("Please fill all fields correctly");
+      return;
+    }
+    analyze();
+  } else {
+    setStep(step + 1);
+  }
 };
-
-const Logo = () => (
-<div className="flex flex-col items-center mb-10">
-<div className="logo-shape">
-<div className="flex z-10 font-black text-3xl">
-<span className="text-white">H</span>
-<span className="text-premium-gold mx-0.5">G</span>
-<span className="text-white">P</span>
-</div>
-</div>
-<h1 className="text-xl font-black tracking-[0.4em] uppercase text-rich-plum mt-6">HEALTH GUIDE PRO</h1>
-</div>
-);
-
-if(loading) return (
-<div className="min-h-screen flex flex-col items-center justify-center">
-<div className="w-14 h-14 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
-<p className="mt-6 font-black italic">Analyzing...</p>
-</div>
-);
-
-if(report) return (
-<div className="max-w-md mx-auto fade-up pb-20">
-<Logo/>
-
-<div className="premium-card rounded-[3rem] p-10 text-center mb-6 border-t-8 border-rich-plum">
-<h2 className="text-7xl font-black italic">{report.score}</h2>
-<p>Score</p>
-</div>
-
-<div className="grid gap-4">
-<div className="premium-card p-5 rounded-xl">BMI: {report.bmi}</div>
-<div className="premium-card p-5 rounded-xl">BMR: {report.bmr}</div>
-<div className="premium-card p-5 rounded-xl">Calories: {report.tdee}</div>
-<div className="premium-card p-5 rounded-xl">Body Fat: {report.fat}%</div>
-</div>
-
-<p className="mt-6 italic text-center">{report.insight}</p>
-
-<button
-onClick={()=>{
-const phone="919876543210";
-const msg=encodeURIComponent(`My score is ${report.score}`);
-window.open(`https://wa.me/${phone}?text=${msg}`);
-}}
-className="w-full mt-8 bg-rich-plum text-white py-5 rounded-2xl font-black">
-Unlock Full Plan ₹199
-</button>
-
-</div>
-);
-
-const cur = steps[step];
-
-return (
-<div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
-
-<Logo/>
-
-{step>0 && (
-<button onClick={()=>setStep(step-1)} className="mb-4 text-sm opacity-60">
-← Back
-</button>
-)}
-
-<h2 className="text-3xl font-black mb-6 text-center">{cur.q}</h2>
-
-{cur.options ? (
-<div className="grid gap-4">
-{cur.options.map(o=>(
-<button key={o[0]}
-onClick={()=>{setForm({...form,[cur.id]:o[0]});next();}}
-className="p-6 rounded-2xl border hover:border-rich-plum font-bold">
-{o[1]}
-</button>
-))}
-</div>
-):(
-<div>
-<input
-type="number"
-value={form[cur.id]||""}
-onChange={e=>setForm({...form,[cur.id]:e.target.value})}
-className="w-full p-4 border-b-2 mb-6 text-center text-3xl outline-none"
-/>
-
-{error && <p className="text-red-500 text-center mb-3">{error}</p>}
-
-<button onClick={next}
-className="w-full bg-rich-plum text-white py-5 rounded-2xl font-bold">
-Continue
-</button>
-</div>
-)}
-
-</div>
-);
-};
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-</script>
-</body>
-</html>
