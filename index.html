@@ -14,15 +14,12 @@
             theme: {
                 extend: {
                     colors: {
-                        'rich-plum': '#2D1B33', // Deep Luxury Purple
-                        'gold-tint': '#D4AF37', // Muted Gold
-                        'cream-bg': '#FDFCF8',  // Luxury Paper White
-                        'clay': '#795548',      // Warm Brown
+                        'rich-plum': '#2D1B33',
+                        'premium-gold': '#D4AF37',
+                        'cream-bg': '#FDFCF8',
+                        'clay': '#795548',
                     },
-                    fontFamily: { 
-                        sans: ['Instrument Sans', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif']
-                    }
+                    fontFamily: { sans: ['Instrument Sans', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
                 }
             }
         }
@@ -30,11 +27,22 @@
     <style>
         body { background-color: #FDFCF8; color: #2D1B33; -webkit-font-smoothing: antialiased; }
         .premium-card { background: #ffffff; border: 1px solid rgba(45, 27, 51, 0.08); box-shadow: 0 20px 40px rgba(45, 27, 51, 0.05); }
-        .logo-box { background: #2D1B33; border-radius: 18px; transform: rotate(-2deg); }
-        .logo-text { font-family: 'Playfair Display', serif; font-style: italic; }
-        input, button { font-weight: 800 !important; font-size: 1.25rem !important; }
-        .fade-up { animation: fadeUp 0.5s ease-out forwards; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* PULSING HEXAGON LOGO */
+        .logo-shape {
+            width: 85px; height: 85px;
+            background: #2D1B33;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
+            animation: float 4s ease-in-out infinite;
+            border: 2px solid #D4AF37;
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.05); } }
+        
+        .target-tag { background: #FDFCF8; border: 1px solid #D4AF37; color: #D4AF37; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .step-transition { animation: fadeUp 0.4s ease-out forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -50,21 +58,23 @@
             const [report, setReport] = useState(null);
 
             const steps = [
-                { id: 's', q: "Select Your Gender", sub: "Biological baseline check", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "✨" },
-                { id: 'age', q: "What is your Age?", sub: "Years since birth", icon: "🎂", type: 'number', placeholder: 'Years' },
-                { id: 'weight', q: "Your Current Weight?", sub: "Measured in Kilograms", icon: "⚖️", type: 'number', placeholder: 'Kg' },
-                { id: 'height', q: "Your Total Height?", sub: "Measured in Centimeters", icon: "📏", type: 'number', placeholder: 'Cm' },
-                { id: 'waist', q: "Your Waist Size?", sub: "Measure at the navel", icon: "📏", type: 'number', placeholder: 'Cm' },
-                { id: 'neck', q: "Your Neck Size?", sub: "Measure below the throat", icon: "🦒", type: 'number', placeholder: 'Cm' },
-                ...(form.s === 'female' ? [{ id: 'hip', q: "Your Hip Size?", sub: "Widest part of hips", icon: "📐", type: 'number', placeholder: 'Cm' }] : []),
-                { id: 'sleep', q: "Daily Sleep Hours?", sub: "Average nightly recovery", icon: "🌙", type: 'number', placeholder: 'Hours' },
-                { id: 'goal', q: "Your Main Health Goal?", sub: "Your primary focus", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']], icon: "🎯" }
+                { id: 's', q: "Identify Gender", sub: "Biological baseline check", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "✨" },
+                { id: 'age', q: "Current Age", sub: "Metabolic age modeling", icon: "🎂", type: 'number', placeholder: 'Years' },
+                { id: 'weight', q: "System Weight", sub: "Current mass in Kilograms", icon: "⚖️", type: 'number', placeholder: 'Kg' },
+                { id: 'height', q: "Stature Height", sub: "Height in Centimeters", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'waist', q: "Waist Line", sub: "Measurement at navel level", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'neck', q: "Neck Girth", sub: "Measurement below throat", icon: "🦒", type: 'number', placeholder: 'Cm' },
+                ...(form.s === 'female' ? [{ id: 'hip', q: "Hip Girth", sub: "Widest point (Required for XX)", icon: "📐", type: 'number', placeholder: 'Cm' }] : []),
+                { id: 'sleep', q: "Sleep Recovery", sub: "Average nightly hours", icon: "🌙", type: 'number', placeholder: 'Hours' },
+                { id: 'goal', q: "Core Objective", sub: "Your primary health focus", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']], icon: "🎯" }
             ];
 
             const analyze = () => {
                 setLoading(true);
                 setTimeout(() => {
                     const { weight, height, age, s, waist, neck, hip, sleep, goal } = form;
+                    
+                    // Current Metrics
                     let bmr = (10*weight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161);
                     let tdee = Math.round(bmr * 1.5);
                     if(goal === "loss") tdee -= 400;
@@ -74,77 +84,92 @@
                         ? (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76)
                         : (163.205 * Math.log10(Number(waist) + Number(hip) - neck) - 97.684 * Math.log10(height) - 78.387);
                     
-                    setReport({ tdee, bmr: Math.round(bmr), fat: Math.round(fat), bmi, score: Math.max(60, 100 - (Math.abs(bmi-23)*4)) });
+                    // Target Logic (Ideal BMI for health is 22.0)
+                    let targetWeight = 22.0 * ((height/100)**2);
+                    let targetBmr = Math.round((10*targetWeight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161));
+                    let targetBmi = "22.0";
+
+                    setReport({ 
+                        tdee, bmr: Math.round(bmr), fat: Math.round(fat), bmi, 
+                        score: Math.max(55, 100 - (Math.abs(bmi-22)*5)),
+                        targetBmr, targetBmi
+                    });
                     setLoading(false);
-                }, 2500);
+                }, 2800);
             };
 
             const next = () => step < steps.length - 1 ? setStep(step + 1) : analyze();
 
             const Logo = () => (
                 <div className="flex flex-col items-center mb-10">
-                    <div className="logo-box p-3 px-6 shadow-xl mb-2">
-                        <h1 className="logo-text text-white text-3xl">HGP</h1>
+                    <div className="logo-shape">
+                        <h1 className="logo-text text-premium-gold text-3xl">H</h1>
                     </div>
-                    <p className="text-[10px] font-extrabold tracking-[0.4em] uppercase text-rich-plum opacity-40">Health Guide Pro</p>
+                    <p className="text-[10px] font-extrabold tracking-[0.5em] uppercase text-rich-plum mt-4">Health Guide Pro</p>
                 </div>
             );
 
             if (loading) return (
-                <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg">
-                    <div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-6 font-extrabold uppercase tracking-widest text-rich-plum">Compiling Data...</p>
+                <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg p-10 text-center">
+                    <div className="w-14 h-14 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-8 font-black uppercase tracking-[0.3em] text-rich-plum italic text-lg">Synchronizing Personal Targets</p>
                 </div>
             );
 
             if (report) return (
-                <div className="max-w-md mx-auto fade-up pb-20">
+                <div className="max-w-md mx-auto step-transition pb-20">
                     <Logo />
-                    <div className="premium-card rounded-[3rem] p-10 text-center mb-8 border-t-4 border-rich-plum">
-                        <p className="text-xs font-extrabold opacity-40 uppercase tracking-widest mb-2">Your Wellness Score</p>
-                        <h2 className="text-8xl font-black text-rich-plum italic">{Math.round(report.score)}</h2>
+                    <div className="premium-card rounded-[3rem] p-10 text-center mb-10 border-t-8 border-rich-plum relative overflow-hidden">
+                        <p className="text-xs font-extrabold opacity-30 uppercase tracking-[0.2em] mb-2">Diagnostic Score</p>
+                        <h2 className="text-8xl font-black text-rich-plum italic leading-none">{Math.round(report.score)}</h2>
                     </div>
 
-                    <div className="grid gap-4 mb-8">
-                        {/* 1. CALORIES */}
-                        <div className="premium-card p-6 rounded-3xl">
-                            <h3 className="text-rich-plum text-sm font-black uppercase mb-1">1. Daily Energy (TDEE)</h3>
-                            <p className="text-3xl font-black mb-1">{report.tdee} Kcal</p>
-                            <p className="text-sm text-clay font-bold leading-tight">The total energy your body needs to power through your day and reach your goal.</p>
-                        </div>
-                        
-                        {/* 2. BODY FAT */}
-                        <div className="premium-card p-6 rounded-3xl">
-                            <h3 className="text-rich-plum text-sm font-black uppercase mb-1">2. Body Fat Ratio</h3>
-                            <p className="text-3xl font-black mb-1">{report.fat}%</p>
-                            <p className="text-sm text-clay font-bold leading-tight">Unlike weight, this tells us how much of your body is fat vs. muscle. A key marker of health.</p>
+                    <div className="grid gap-6 mb-10">
+                        {/* 1. BMI GAP */}
+                        <div className="premium-card p-6 rounded-[2rem] border-l-8 border-rich-plum">
+                            <div className="flex justify-between items-start mb-2">
+                                <h3 className="text-rich-plum text-xs font-black uppercase">Mass Index (BMI)</h3>
+                                <span className="target-tag">Target: {report.targetBmi}</span>
+                            </div>
+                            <p className="text-4xl font-black mb-2">{report.bmi}</p>
+                            <p className="text-sm text-clay font-bold italic leading-snug">Your skeletal stress ratio. Aligning this with your target of {report.targetBmi} ensures maximum joint longevity.</p>
                         </div>
 
-                        {/* 3. BMR */}
-                        <div className="premium-card p-6 rounded-3xl">
-                            <h3 className="text-rich-plum text-sm font-black uppercase mb-1">3. Resting Burn (BMR)</h3>
-                            <p className="text-3xl font-black mb-1">{report.bmr} Kcal</p>
-                            <p className="text-sm text-clay font-bold leading-tight">The fuel your heart and brain need just to function while you are at rest.</p>
+                        {/* 2. BMR GAP */}
+                        <div className="premium-card p-6 rounded-[2rem] border-l-8 border-premium-gold">
+                            <div className="flex justify-between items-start mb-2">
+                                <h3 className="text-rich-plum text-xs font-black uppercase">Resting Engine (BMR)</h3>
+                                <span className="target-tag">Target: {report.targetBmr}</span>
+                            </div>
+                            <p className="text-4xl font-black mb-2">{report.bmr} <span className="text-sm opacity-30">kcal</span></p>
+                            <p className="text-sm text-clay font-bold italic leading-snug">This is your body's base burn. Your target BMR is where your metabolism should be for effortless weight control.</p>
                         </div>
 
-                        {/* 4. BMI */}
-                        <div className="premium-card p-6 rounded-3xl">
-                            <h3 className="text-rich-plum text-sm font-black uppercase mb-1">4. Growth Index (BMI)</h3>
-                            <p className="text-3xl font-black mb-1">{report.bmi}</p>
-                            <p className="text-sm text-clay font-bold leading-tight">Your height-to-weight balance. It confirms if you are carrying a healthy load for your frame.</p>
+                        {/* 3. CALORIES */}
+                        <div className="premium-card p-6 rounded-[2rem]">
+                            <h3 className="text-rich-plum text-xs font-black uppercase mb-2">Dynamic Calorie Intake</h3>
+                            <p className="text-4xl font-black mb-2">{report.tdee} <span className="text-sm opacity-30">kcal</span></p>
+                            <p className="text-sm text-clay font-bold italic leading-snug">Your personalized daily "fuel limit" to bridge the gap between your current state and your health targets.</p>
+                        </div>
+
+                        {/* 4. BODY FAT */}
+                        <div className="premium-card p-6 rounded-[2rem]">
+                            <h3 className="text-rich-plum text-xs font-black uppercase mb-2">Adipose Tissue Ratio</h3>
+                            <p className="text-4xl font-black mb-2">{report.fat}%</p>
+                            <p className="text-sm text-clay font-bold italic leading-snug">The true indicator of health. Unlike weight, this reveals your literal fat-to-muscle composition.</p>
                         </div>
                     </div>
 
-                    <div className="bg-rich-plum text-white p-8 rounded-[2.5rem] shadow-2xl">
-                        <h3 className="text-2xl font-black mb-4 italic uppercase tracking-tighter">Premium Awakening</h3>
-                        <div className="space-y-4 mb-8 text-sm opacity-80 font-bold">
-                            <p>🔒 Your Personalized Hormone Reset</p>
-                            <p>🔒 Hidden Metabolic Blockage Report</p>
-                            <p>🔒 Your Exact Metabolic Set-Point</p>
-                        </div>
-                        <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=I want my full guide. Score: ${Math.round(report.score)}`)} 
-                            className="w-full bg-white text-rich-plum py-6 rounded-2xl font-black uppercase tracking-widest text-lg shadow-xl">
-                            Unlock Full Plan - ₹199
+                    <div className="bg-rich-plum text-white p-10 rounded-[3rem] shadow-2xl">
+                        <h3 className="text-2xl font-black mb-6 italic uppercase tracking-tighter text-premium-gold">Premium Awakening</h3>
+                        <ul className="space-y-4 mb-10 text-sm font-bold opacity-90">
+                            <li>✔️ Personalized Hormone Synchronization</li>
+                            <li>✔️ The "Metabolic Reset" 7-Day Protocol</li>
+                            <li>✔️ Exact Nutrition Window for Your BMR</li>
+                        </ul>
+                        <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Hi, I want my full guide. My Score: ${Math.round(report.score)}`)} 
+                            className="w-full bg-white text-rich-plum py-6 rounded-2xl font-black uppercase tracking-widest text-lg shadow-xl active:scale-95 transition-all">
+                            Unlock Full Guide - ₹199
                         </button>
                     </div>
                 </div>
@@ -153,35 +178,34 @@
             const cur = steps[step];
 
             return (
-                <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
+                <div className="max-w-md mx-auto min-h-screen flex flex-col step-transition">
                     <Logo />
                     <div className="flex-1 flex flex-col justify-center">
-                        <div className="mb-8">
-                            <div className="text-5xl mb-4">{cur.icon}</div>
-                            <h2 className="text-3xl font-black tracking-tight text-rich-plum uppercase italic leading-tight">{cur.q}</h2>
-                            <p className="text-clay text-sm font-extrabold uppercase tracking-wide">{cur.sub}</p>
+                        <div className="mb-10 text-center">
+                            <h2 className="text-4xl font-black tracking-tighter text-rich-plum uppercase italic leading-none mb-3">{cur.q}</h2>
+                            <p className="text-clay text-sm font-extrabold uppercase tracking-widest opacity-60">{cur.sub}</p>
                         </div>
 
-                        <div className="premium-card p-8 rounded-[2.5rem] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gray-100">
+                        <div className="premium-card p-10 rounded-[3rem] relative">
+                            <div className="absolute top-0 left-0 w-full h-[6px] bg-gray-50 rounded-t-full">
                                 <div className="h-full bg-rich-plum transition-all duration-700" style={{ width: `${((step+1)/steps.length)*100}%` }}></div>
                             </div>
                             
                             {cur.options ? (
-                                <div className="grid gap-4 mt-4">
+                                <div className="grid gap-4 mt-6">
                                     {cur.options.map(o => (
                                         <button key={o[0]} onClick={() => { setForm({...form, [cur.id]: o[0]}); next(); }}
-                                            className="w-full p-6 text-left rounded-2xl bg-cream-bg border-2 border-transparent hover:border-rich-plum transition-all font-black text-xl">
-                                            {o[1]}
+                                            className="w-full p-6 text-left rounded-2xl bg-cream-bg border-2 border-transparent hover:border-rich-plum transition-all font-black text-2xl flex justify-between items-center group">
+                                            {o[1]} <span className="opacity-0 group-hover:opacity-100 transition-all text-rich-plum">→</span>
                                         </button>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="mt-4 text-center">
+                                <div className="mt-6 text-center">
                                     <input autoFocus type={cur.type} placeholder={cur.placeholder} value={form[cur.id]} onChange={e => setForm({...form, [cur.id]: e.target.value})}
-                                        className="w-full bg-transparent border-b-4 border-gray-100 focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-100 mb-10 text-center text-rich-plum" />
-                                    <button onClick={next} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl">
-                                        Next →
+                                        className="w-full bg-transparent border-b-4 border-gray-100 focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-100 mb-12 text-center text-rich-plum" />
+                                    <button onClick={next} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-xl shadow-xl hover:bg-black transition-all">
+                                        Continue
                                     </button>
                                 </div>
                             )}
