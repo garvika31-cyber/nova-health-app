@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Health Guide Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -14,10 +14,10 @@
             theme: {
                 extend: {
                     colors: {
-                        'hgp-purple': '#5e35b1', // Deep Purple
-                        'hgp-brown': '#795548',  // Warm Brown
-                        'hgp-grey': '#f5f5f7',   // Light Stone Grey
-                        'hgp-dark': '#1c1c1e',  // Almost Black for text
+                        'hgp-purple': '#5e35b1',
+                        'hgp-brown': '#795548',
+                        'hgp-grey': '#f0f0f2',
+                        'hgp-dark': '#1c1c1e',
                     },
                     fontFamily: { sans: ['Instrument Sans', 'sans-serif'] }
                 }
@@ -25,15 +25,16 @@
         }
     </script>
     <style>
-        body { background-color: #f5f5f7; color: #1c1c1e; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(0,0,0,0.05); }
-        .step-transition { animation: fadeInScale 0.5s ease-out; }
-        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        body { background-color: #f0f0f2; color: #1c1c1e; -webkit-font-smoothing: antialiased; }
+        .glass-card { background: #ffffff; border: 2px solid rgba(0,0,0,0.05); }
         .logo-gradient { background: linear-gradient(135deg, #5e35b1 0%, #7e57c2 100%); }
+        /* Ensuring all inputs and buttons feel consistent and large */
+        input, button, select { font-weight: 800 !important; font-size: 1.25rem !important; }
+        .step-transition { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -46,23 +47,23 @@
             const [report, setReport] = useState(null);
 
             const steps = [
-                { id: 's', q: "Let's begin with your gender", sub: "This helps us tailor your biological results.", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "🌱" },
-                { id: 'age', q: "How old are you?", sub: "Age influences your metabolism.", icon: "🎂", type: 'number', placeholder: 'Years' },
-                { id: 'weight', q: "What is your current weight?", sub: "In kilograms (kg), please.", icon: "⚖️", type: 'number', placeholder: 'Kg' },
-                { id: 'height', q: "And your height?", sub: "In centimeters (cm).", icon: "📏", type: 'number', placeholder: 'Cm' },
-                { id: 'waist', q: "Measure your waist line", sub: "Right at your belly button.", icon: "📏", type: 'number', placeholder: 'Cm' },
-                { id: 'neck', q: "Now, measure your neck girth", sub: "Just below your Adam's apple.", icon: "🦒", type: 'number', placeholder: 'Cm' },
-                ...(form.s === 'female' ? [{ id: 'hip', q: "Lastly, your hip measurement", sub: "At the widest part of your hips.", icon: "📏", type: 'number', placeholder: 'Cm' }] : []),
-                { id: 'sleep', q: "How much sleep do you get?", sub: "On average, per night.", icon: "🌙", type: 'number', placeholder: 'Hours' },
-                { id: 'goal', q: "What is your main health goal?", sub: "This defines your personalized plan.", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']], icon: "🎯" }
+                { id: 's', q: "Select Your Gender", sub: "Biological baseline check", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "🌱" },
+                { id: 'age', q: "What is your Age?", sub: "Years since birth", icon: "🎂", type: 'number', placeholder: 'Years' },
+                { id: 'weight', q: "Your Current Weight?", sub: "Measured in Kilograms", icon: "⚖️", type: 'number', placeholder: 'Kg' },
+                { id: 'height', q: "Your Total Height?", sub: "Measured in Centimeters", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'waist', q: "Your Waist Size?", sub: "Measure at the navel", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'neck', q: "Your Neck Size?", sub: "Measure below the throat", icon: "🦒", type: 'number', placeholder: 'Cm' },
+                ...(form.s === 'female' ? [{ id: 'hip', q: "Your Hip Size?", sub: "Widest part of hips", icon: "📐", type: 'number', placeholder: 'Cm' }] : []),
+                { id: 'sleep', q: "Daily Sleep Hours?", sub: "Average nightly recovery", icon: "🌙", type: 'number', placeholder: 'Hours' },
+                { id: 'goal', q: "Your Main Health Goal?", sub: "Your primary focus", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']], icon: "🎯" }
             ];
 
-            const executeAnalysis = () => {
+            const analyze = () => {
                 setLoading(true);
                 setTimeout(() => {
                     const { weight, height, age, s, waist, neck, hip, sleep, goal } = form;
                     let bmr = (10*weight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161);
-                    let tdee = Math.round(bmr * 1.55);
+                    let tdee = Math.round(bmr * 1.5);
                     if(goal === "loss") tdee -= 400;
                     if(goal === "gain") tdee += 300;
                     let bmi = (weight / ((height/100)**2)).toFixed(1);
@@ -72,64 +73,58 @@
                     
                     setReport({ tdee, bmr: Math.round(bmr), fat: fat.toFixed(1), bmi, score: Math.max(60, 100 - (Math.abs(bmi-23)*4)) });
                     setLoading(false);
-                }, 2600);
+                }, 2500);
             };
 
-            const next = () => step < steps.length - 1 ? setStep(step + 1) : executeAnalysis();
+            const next = () => step < steps.length - 1 ? setStep(step + 1) : analyze();
 
-            // --- HEADER COMPONENT ---
             const Header = () => (
-                <div className="flex justify-center mb-12 mt-4">
-                    <div className="flex items-center gap-3 logo-gradient p-4 px-6 rounded-full shadow-lg">
-                        <div className="text-white text-3xl">🛡️</div>
-                        <h1 className="text-2xl font-extrabold text-white tracking-tighter">Health<span className="opacity-70">Guide</span><span className="font-light opacity-60">Pro</span></h1>
+                <div className="flex justify-center mb-8 mt-2">
+                    <div className="flex items-center gap-3 logo-gradient p-4 px-8 rounded-3xl shadow-md border-b-4 border-black/20">
+                        <span className="text-3xl">🛡️</span>
+                        <h1 className="text-2xl font-extrabold text-white tracking-tighter uppercase italic">Health Guide Pro</h1>
                     </div>
                 </div>
             );
 
             if (loading) return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-10 bg-hgp-grey">
-                    <div className="w-12 h-12 border-4 border-hgp-purple border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-6 text-sm font-semibold text-hgp-brown animate-pulse">Building your personalized guide...</p>
+                    <div className="w-16 h-16 border-8 border-hgp-purple border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-8 text-xl font-extrabold text-hgp-purple uppercase italic">Calculating Insights...</p>
                 </div>
             );
 
             if (report) return (
                 <div className="max-w-md mx-auto step-transition pb-20">
                     <Header />
-                    
-                    <div className="bg-white rounded-3xl p-10 text-center mb-8 shadow-sm border border-slate-100">
-                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Overall Wellness Score</p>
-                        <h2 className="text-8xl font-extrabold text-hgp-purple tracking-tighter">{Math.round(report.score)}<span className="text-xl font-medium text-slate-300">/100</span></h2>
+                    <div className="bg-white rounded-[2.5rem] p-10 text-center mb-6 shadow-xl border-2 border-hgp-purple/10">
+                        <p className="text-sm font-extrabold text-slate-400 uppercase tracking-widest mb-2">Wellness Score</p>
+                        <h2 className="text-8xl font-black text-hgp-purple italic">{Math.round(report.score)}</h2>
                     </div>
 
-                    <div className="grid gap-4 mb-10">
-                        {/* RESULT 1 */}
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <h3 className="text-hgp-purple text-xs font-bold uppercase tracking-widest mb-1">Daily Energy Needs</h3>
-                            <p className="text-3xl font-extrabold text-hgp-dark">{report.tdee} <span className="text-sm font-normal text-slate-500">Calories/Day</span></p>
-                            <p className="text-sm text-slate-600 mt-2 leading-relaxed">This is your "Budget." Eating this amount will help you reach your <strong>{form.goal === 'loss' ? 'Fat Loss' : form.goal === 'gain' ? 'Muscle Gain' : 'Health Maintenance'}</strong> goal safely.</p>
+                    <div className="space-y-4 mb-8">
+                        <div className="bg-white p-6 rounded-3xl shadow-md border-l-8 border-hgp-purple">
+                            <h3 className="text-hgp-purple text-sm font-black uppercase mb-1 italic">01. Calorie Target</h3>
+                            <p className="text-3xl font-black">{report.tdee} Kcal</p>
                         </div>
-                        {/* RESULT 2 */}
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <h3 className="text-hgp-brown text-xs font-bold uppercase tracking-widest mb-1">Body Fat Percentage</h3>
-                            <p className="text-3xl font-extrabold text-hgp-dark">{report.fat}% <span className="text-sm font-normal text-slate-500">Body Fat</span></p>
-                            <p className="text-sm text-slate-600 mt-2 leading-relaxed">This number tells you the true composition of your body (Fat vs. Muscle), which is much more important than just your weight.</p>
-                        </div>
-                        {/* RESULT 3 */}
-                        <div className="glass-card p-6 rounded-2xl shadow-inner bg-slate-100">
-                            <h3 className="text-slate-600 text-[11px] font-bold uppercase tracking-widest mb-1">Body Mass Index (BMI)</h3>
-                            <p className="text-2xl font-extrabold text-hgp-dark">{report.bmi} <span className="text-sm font-normal text-slate-500">Ratio</span></p>
-                            <p className="text-sm text-slate-600 mt-2 leading-relaxed">A simple check that compares your height to your weight. This helps ensure your body isn't carrying too much stress.</p>
+                        <div className="bg-white p-6 rounded-3xl shadow-md border-l-8 border-hgp-brown">
+                            <h3 className="text-hgp-brown text-sm font-black uppercase mb-1 italic">02. Body Fat Ratio</h3>
+                            <p className="text-3xl font-black">{report.fat}%</p>
                         </div>
                     </div>
 
-                    <div className="bg-hgp-dark text-white p-8 rounded-3xl shadow-xl text-center">
-                        <h3 className="text-2xl font-extrabold mb-2 tracking-tight">Your Full Guide is Ready</h3>
-                        <p className="text-sm font-medium opacity-70 mb-8 px-4 leading-relaxed">Unlock your complete 7-Day Meal Plan, customized Exercise Guide, and Sleep Routine for <strong>₹199</strong>.</p>
-                        <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Hi, I want my Personalized Health Guide. Score: ${Math.round(report.score)}`)} 
-                            className="w-full hgp-bg-purple bg-hgp-purple text-white py-5 rounded-full font-bold uppercase tracking-widest text-xs shadow-lg shadow-hgp-purple/30 active:scale-95 transition-all">
-                            Unlock My Complete Plan
+                    {/* AWAKENING INSIGHT PREVIEW */}
+                    <div className="bg-hgp-dark text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl">💎</div>
+                        <h3 className="text-2xl font-black mb-4 uppercase italic tracking-tighter text-hgp-purple">Awakening Insights</h3>
+                        <div className="space-y-4 mb-8">
+                            <p className="text-sm font-bold border-l-2 border-white/20 pl-4">🔓 Hidden Metabolic Blockage Detected</p>
+                            <p className="text-sm font-bold border-l-2 border-white/20 pl-4">🔓 Optimal Eating Window: Found</p>
+                            <p className="text-sm font-bold border-l-2 border-white/20 pl-4">🔓 Personalized Hormone Reset Plan</p>
+                        </div>
+                        <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=I want my awakening insights. My score is ${Math.round(report.score)}`)} 
+                            className="w-full bg-hgp-purple hover:bg-white hover:text-hgp-purple text-white py-6 rounded-2xl font-black uppercase tracking-widest text-lg transition-all shadow-lg shadow-purple-500/20">
+                            Get My Full Plan - ₹199
                         </button>
                     </div>
                 </div>
@@ -138,38 +133,33 @@
             const cur = steps[step];
 
             return (
-                <div className="max-w-md mx-auto min-h-screen flex flex-col step-transition pb-10">
+                <div className="max-w-md mx-auto min-h-screen flex flex-col step-transition">
                     <Header />
-
                     <div className="flex-1 flex flex-col justify-center">
-                        <div className="flex items-center gap-4 mb-10 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <div className="text-6xl">{cur.icon}</div>
+                        <div className="flex items-center gap-4 mb-8 bg-white p-6 rounded-[2rem] shadow-lg border-2 border-hgp-purple/10">
+                            <div className="text-5xl">{cur.icon}</div>
                             <div>
-                                <h2 className="text-2xl font-extrabold mb-1 tracking-tight text-hgp-dark">{cur.q}</h2>
-                                <p className="text-slate-500 text-sm font-medium leading-relaxed">{cur.sub}</p>
+                                <h2 className="text-2xl font-black tracking-tight text-hgp-dark uppercase italic leading-tight">{cur.q}</h2>
+                                <p className="text-slate-400 text-sm font-bold uppercase">{cur.sub}</p>
                             </div>
                         </div>
 
-                        <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-[3px] bg-slate-100">
-                                <div className="h-full bg-hgp-purple transition-all duration-700" style={{ width: `${((step+1)/steps.length)*100}%` }}></div>
-                            </div>
-                            
+                        <div className="bg-white p-10 rounded-[3rem] shadow-2xl border-b-8 border-black/5 relative">
                             {cur.options ? (
-                                <div className="grid gap-3 mt-4">
+                                <div className="grid gap-4 mt-2">
                                     {cur.options.map(o => (
                                         <button key={o[0]} onClick={() => { setForm({...form, [cur.id]: o[0]}); next(); }}
-                                            className="w-full p-6 text-left rounded-2xl border border-slate-100 bg-slate-50 hover:border-hgp-purple/40 hover:bg-hgp-purple/5 transition-all font-semibold text-sm text-hgp-dark flex items-center gap-3">
+                                            className="w-full p-6 text-left rounded-[1.5rem] border-2 border-hgp-grey bg-hgp-grey hover:border-hgp-purple hover:bg-hgp-purple/5 transition-all font-black text-xl flex items-center gap-4">
                                             {o[1]}
                                         </button>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="mt-4">
+                                <div className="mt-2 text-center">
                                     <input autoFocus type={cur.type} placeholder={cur.placeholder} value={form[cur.id]} onChange={e => setForm({...form, [cur.id]: e.target.value})}
-                                        className="w-full bg-transparent border-b-2 border-slate-200 focus:border-hgp-purple p-4 text-6xl font-extrabold outline-none transition-all placeholder:text-slate-200 mb-10 text-hgp-purple" />
-                                    <button onClick={next} className="w-full bg-hgp-purple text-white py-5 rounded-full font-bold uppercase tracking-[0.2em] text-xs shadow-lg shadow-hgp-purple/20 active:scale-95 transition-all">
-                                        Next
+                                        className="w-full bg-transparent border-b-4 border-hgp-grey focus:border-hgp-purple p-4 text-6xl font-black outline-none transition-all placeholder:text-slate-200 mb-10 text-center text-hgp-purple" />
+                                    <button onClick={next} className="w-full bg-hgp-purple text-white py-6 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-xl shadow-xl active:scale-95 transition-all">
+                                        Continue →
                                     </button>
                                 </div>
                             )}
