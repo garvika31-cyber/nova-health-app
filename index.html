@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AuraHealth Clinical 🔬</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <title>AURA ELITE | Clinical Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        :root { --bg: #050505; --accent: #00ff9d; --card: #111111; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: #ffffff; }
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-        .glass-blur { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .neon-border { border: 1px solid rgba(0, 255, 157, 0.2); box-shadow: 0 0 15px rgba(0, 255, 157, 0.05); }
-        .step-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        :root { --accent: #00f2ff; --bg: #030712; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .gradient-glow { background: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.15) 0%, transparent 70%); }
+        .btn-premium { background: linear-gradient(90deg, #00f2ff, #0066ff); box-shadow: 0 0 30px rgba(0, 242, 255, 0.3); }
+        .card-inner { border-radius: 2rem; padding: 2rem; position: relative; overflow: hidden; }
+        .card-inner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%); pointer-events: none; }
     </style>
 </head>
 <body>
@@ -26,117 +28,105 @@
 
         const App = () => {
             const [step, setStep] = useState(0);
-            const [form, setForm] = useState({ weight: '', height: '', age: '', sex: 'male', goal: 'lean', activity: 'mod', medical: '' });
+            const [data, setData] = useState({ w: '', h: '', a: '', s: 'm', goal: 'lean', activity: 'mod', stress: 'low' });
             const [loading, setLoading] = useState(false);
-            const [report, setReport] = useState(null);
+            const [result, setResult] = useState(null);
 
-            const questions = [
-                { id: 'sex', q: "Biological Origin", sub: "Clinical baseline for hormonal tracking", icon: "🧬", options: [['male', 'Male (XY)'], ['female', 'Female (XX)']] },
-                { id: 'age', q: "Chronological Age", sub: "Required for Mifflin-St Jeor metabolic decay algorithm", icon: "⏳", type: 'number', placeholder: 'Ex: 28' },
-                { id: 'weight', q: "Total Body Mass", sub: "Current gravitational weight in kilograms", icon: "⚖️", type: 'number', placeholder: 'kg' },
-                { id: 'height', q: "Vertical Stature", sub: "Needed for BMI & Body Surface Area (BSA) calcs", icon: "📏", type: 'number', placeholder: 'cm' },
-                { id: 'activity', q: "Exercise Frequency", sub: "Determines Activity Multiplier (NEAT)", icon: "🏃", options: [['low', 'Sedentary / Desk'], ['mod', 'Active (3-5 days)'], ['pro', 'Professional Athlete']] },
-                { id: 'medical', q: "Clinical Observations", sub: "Identify injuries, allergies, or metabolic conditions", icon: "🏥", type: 'text', placeholder: 'Describe (or type None)' }
+            const steps = [
+                { id: 's', q: "Biological Baseline", sub: "Clinical sex determination for hormonal modeling", options: [['m', 'MALE (XY)'], ['f', 'FEMALE (XX)']], icon: "🧬" },
+                { id: 'a', q: "Chronological Age", sub: "Metabolic decay coefficient (Mifflin Model)", icon: "⏳", type: 'number', placeholder: 'Years' },
+                { id: 'w', q: "Body Mass (Kg)", sub: "Static gravitational mass analysis", icon: "⚖️", type: 'number', placeholder: 'Kg' },
+                { id: 'h', q: "Stature (Cm)", sub: "Needed for BSA and Lean Mass partitioning", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'goal', q: "Genetic Objective", sub: "Desired physiological shift", options: [['lean', 'Lipid Oxidation 📉'], ['mass', 'Myofibrillar Growth 💪'], ['lon', 'Cellular Longevity ✨']], icon: "🎯" },
+                { id: 'stress', q: "Cortisol Load", sub: "CNS stress markers analysis", options: [['low', 'Low / Managed'], ['high', 'High / Chronic']], icon: "🧠" }
             ];
 
-            const generateReport = () => {
+            const runAnalysis = () => {
                 setLoading(true);
                 setTimeout(() => {
-                    let bmr = (10 * form.weight) + (6.25 * form.height) - (5 * form.age) + (form.sex === 'male' ? 5 : -161);
-                    const tdee = Math.round(bmr * 1.55);
-                    setReport({ bmr: Math.round(bmr), tdee });
+                    let bmr = (10 * data.w) + (6.25 * data.h) - (5 * data.a) + (data.s === 'm' ? 5 : -161);
+                    setResult({ bmr: Math.round(bmr), tdee: Math.round(bmr * 1.55) });
                     setLoading(false);
-                }, 2800);
+                }, 3000);
             };
 
-            const next = () => step < questions.length - 1 ? setStep(step + 1) : generateReport();
-
             if (loading) return (
-                <div className="flex flex-col items-center justify-center min-h-screen text-center p-10 bg-black">
-                    <div className="w-12 h-12 border-2 border-t-transparent border-[#00ff9d] rounded-full animate-spin mb-6"></div>
-                    <h2 className="text-sm font-bold tracking-[0.3em] text-[#00ff9d] uppercase">Running Clinical Algorithms</h2>
-                    <p className="text-gray-500 text-[10px] mt-4 max-w-xs">Applying Thermogenesis models & Lean Mass partitioning logic...</p>
+                <div className="min-h-screen flex flex-col items-center justify-center p-10 gradient-glow">
+                    <div className="w-16 h-16 rounded-full border-b-2 border-[#00f2ff] animate-spin mb-8"></div>
+                    <h2 className="text-xs font-black tracking-[0.5em] text-[#00f2ff] uppercase">Cross-Referencing Research</h2>
+                    <p className="text-slate-500 text-[10px] mt-4 mono italic">Applying adaptive thermogenesis algorithms...</p>
                 </div>
             );
 
-            if (report) return (
-                <div className="max-w-md mx-auto p-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <h1 className="text-center text-xs font-black tracking-[0.4em] mb-10 text-gray-400">CLINICAL DATASET v4.0</h1>
-                    
-                    {/* Main TDEE Card */}
-                    <div className="glass-blur neon-border rounded-[2rem] p-8 text-center mb-6">
-                        <span className="text-[10px] font-bold text-[#00ff9d] uppercase tracking-widest">Total Daily Energy Expenditure</span>
-                        <h2 className="text-6xl font-bold mt-2 mb-2">{report.tdee}</h2>
-                        <p className="text-[10px] text-gray-500 font-medium">Daily kcal required for maintenance</p>
+            if (result) return (
+                <div className="max-w-md mx-auto p-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                    <div className="text-center mt-8 mb-12">
+                        <span className="text-[10px] font-bold text-[#00f2ff] uppercase tracking-widest border border-[#00f2ff]/30 px-3 py-1 rounded-full">Report ID: 2026-X8</span>
+                        <h1 className="text-4xl font-black mt-4 italic tracking-tighter uppercase">Clinical<br/>Output</h1>
                     </div>
 
-                    {/* Scientific Logic Block 1 */}
-                    <div className="glass-blur p-5 rounded-2xl mb-4">
-                        <h3 className="text-[#00ff9d] text-[10px] font-black uppercase mb-2">01. Basal Metabolic Rate (BMR)</h3>
-                        <p className="text-xs text-gray-400 leading-relaxed">
-                            Your body burns **{report.bmr} kcal** in a coma. Research from *The American Journal of Clinical Nutrition* indicates this accounts for 60-75% of total burn.
-                        </p>
+                    <div className="glass card-inner mb-6 text-center shadow-2xl">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">TDEE (Metabolic Velocity)</p>
+                        <h2 className="text-7xl font-black text-white tracking-tighter">{result.tdee}</h2>
+                        <p className="text-xs text-slate-500 mt-2 mono uppercase tracking-widest font-bold">Kcal / 24h</p>
                     </div>
 
-                    {/* Scientific Logic Block 2 */}
-                    <div className="glass-blur p-5 rounded-2xl mb-4">
-                        <h3 className="text-[#00ff9d] text-[10px] font-black uppercase mb-2">02. Thermic Effect of Food (TEF)</h3>
-                        <p className="text-xs text-gray-400 leading-relaxed">
-                            Approximately **{Math.round(report.tdee * 0.1)} kcal** is utilized purely for digestion. Higher protein intake scales this efficiency by up to 30%.
-                        </p>
-                    </div>
-
-                    {/* Scientific Logic Block 3 */}
-                    <div className="glass-blur p-5 rounded-2xl mb-10 border-l-2 border-yellow-500/50">
-                        <h3 className="text-yellow-500 text-[10px] font-black uppercase mb-2">⚠️ Adaptive Thermogenesis Warning</h3>
-                        <p className="text-xs text-gray-400 leading-relaxed italic">
-                            Studies show metabolic slowdown if you drop below {Math.round(report.bmr * 1.1)} kcal. We recommend a "Clinical Deficit" approach.
-                        </p>
-                    </div>
-
-                    {/* Subscription Upsell */}
-                    <div className="bg-gradient-to-t from-[#00ff9d]/20 to-transparent p-8 rounded-[2rem] border border-[#00ff9d]/30 text-center">
-                        <h4 className="font-bold text-lg mb-2">Unlock Full Lab Results</h4>
-                        <p className="text-xs text-gray-400 mb-6">Receive your Macro Partitioning (P/C/F), Cortisol Control Plan, and Injury-Specific training protocol.</p>
-                        <button className="w-full bg-[#00ff9d] text-black py-4 rounded-xl font-black uppercase tracking-widest text-xs">Unlock Premium Access</button>
+                    <div className="space-y-4">
+                        <div className="glass p-6 rounded-[1.5rem] border-l-4 border-[#00f2ff]">
+                            <h3 className="text-[10px] font-black text-[#00f2ff] uppercase mb-1">Pillar 1: Basal Efficiency</h3>
+                            <p className="text-xs text-slate-300 leading-relaxed">Your BMR is <strong>{result.bmr} kcal</strong>. As per <em>Am. J. Clin. Nutr.</em>, this accounts for cellular maintenance at rest. Dropping intake below this triggers metabolic defense.</p>
+                        </div>
+                        <div className="glass p-6 rounded-[1.5rem] border-l-4 border-emerald-400">
+                            <h3 className="text-[10px] font-black text-emerald-400 uppercase mb-1">Pillar 2: Thermic Variance</h3>
+                            <p className="text-xs text-slate-300 leading-relaxed">Thermic Effect of Food (TEF) is estimated at <strong>{Math.round(result.tdee * 0.1)} kcal</strong>. Studies suggest protein-dense meals increase this efficiency by 20% compared to lipids.</p>
+                        </div>
+                        <div className="glass p-6 rounded-[1.5rem] bg-indigo-900/10 border border-indigo-500/30">
+                            <h3 className="text-xs font-bold text-white mb-3">💎 ELITE PROTOCOL LOCKED</h3>
+                            <p className="text-[10px] text-indigo-200 mb-6">Full nutrient partitioning and insulin sensitivity modeling required for premium users.</p>
+                            <button className="w-full btn-premium py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] text-white">Unlock Full Diagnostics</button>
+                        </div>
                     </div>
                 </div>
             );
 
-            const q = questions[step];
+            const cur = steps[step];
 
             return (
-                <div className="max-w-md mx-auto min-h-screen flex flex-col p-6 step-transition">
-                    <header className="py-10 text-center">
-                        <h1 className="text-xl font-bold tracking-tighter uppercase italic">AURA<span className="text-[#00ff9d]">PHYSICS</span></h1>
-                        <div className="flex justify-center gap-1 mt-4">
-                            {questions.map((_, i) => (
-                                <div key={i} className={`h-[2px] w-4 rounded-full ${i <= step ? 'bg-[#00ff9d]' : 'bg-gray-800'}`}></div>
-                            ))}
-                        </div>
+                <div className="max-w-md mx-auto min-h-screen flex flex-col p-6 gradient-glow">
+                    <header className="py-12 flex justify-between items-center">
+                        <div className="h-[2px] w-12 bg-[#00f2ff]"></div>
+                        <h1 className="text-lg font-black tracking-[0.3em] italic uppercase">AURA<span className="text-[#00f2ff]">X</span></h1>
+                        <div className="h-[2px] w-12 bg-slate-800"></div>
                     </header>
 
                     <div className="flex-1 flex flex-col justify-center">
-                        <div className="text-4xl mb-6">{q.icon}</div>
-                        <h2 className="text-3xl font-bold mb-2 tracking-tight">{q.q}</h2>
-                        <p className="text-sm text-gray-500 mb-10">{q.sub}</p>
+                        <div className="mb-12">
+                            <span className="mono text-[#00f2ff] text-xs font-bold uppercase tracking-widest mb-2 block">Phase 0{step + 1}</span>
+                            <h2 className="text-4xl font-black tracking-tight leading-tight">{cur.q}</h2>
+                            <p className="text-slate-500 text-sm mt-2">{cur.sub}</p>
+                        </div>
 
-                        {q.options ? (
-                            <div className="grid gap-3">
-                                {q.options.map(opt => (
-                                    <button key={opt[0]} onClick={() => { setForm({...form, [q.id]: opt[0]}); next(); }} 
-                                        className="w-full p-5 text-left rounded-xl border border-gray-800 hover:border-[#00ff9d] hover:bg-[#00ff9d]/5 transition-all font-medium">
-                                        {opt[1]}
+                        <div className="glass rounded-[2.5rem] p-8 shadow-2xl">
+                            {cur.options ? (
+                                <div className="space-y-3">
+                                    {cur.options.map(o => (
+                                        <button key={o[0]} onClick={() => { setData({...data, [cur.id]: o[0]}); step < steps.length - 1 ? setStep(step + 1) : runAnalysis(); }}
+                                            className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-left font-bold text-sm uppercase tracking-widest hover:border-[#00f2ff] transition-all">
+                                            {o[1]}
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div>
+                                    <input autoFocus type={cur.type} placeholder={cur.placeholder} value={data[cur.id]} onChange={e => setData({...data, [cur.id]: e.target.value})}
+                                        className="w-full bg-transparent border-b-2 border-slate-800 focus:border-[#00f2ff] p-4 text-4xl font-black outline-none transition-all placeholder:text-slate-900 mb-8" />
+                                    <button onClick={() => step < steps.length - 1 ? setStep(step + 1) : runAnalysis()}
+                                        className="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-xl active:scale-95 transition-all">
+                                        Next Signal
                                     </button>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="space-y-10">
-                                <input autoFocus type={q.type} placeholder={q.placeholder} value={form[q.id]} onChange={e => setForm({...form, [q.id]: e.target.value})} 
-                                    className="w-full bg-transparent border-b border-gray-800 focus:border-[#00ff9d] py-4 text-3xl font-bold outline-none transition-all placeholder:text-gray-800" />
-                                <button onClick={next} className="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs">Analyze Step</button>
-                            </div>
-                        )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             );
