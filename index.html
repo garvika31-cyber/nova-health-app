@@ -16,7 +16,7 @@
                     colors: {
                         'rich-plum': '#2D1B33',
                         'premium-gold': '#D4AF37',
-                        'soft-purple': '#F5F2FF', // The New Premium Background
+                        'soft-purple': '#F5F2FF',
                         'lavender-accent': '#C7D2FE',
                         'clay': '#795548',
                     },
@@ -29,7 +29,7 @@
         body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; }
         .premium-card { background: #ffffff; border: 1px solid rgba(45, 27, 51, 0.08); box-shadow: 0 20px 40px rgba(45, 27, 51, 0.05); }
         
-        /* TRIPLE BORDER HEXAGON LOGO */
+        /* MULTI-BORDER HEXAGON LOGO */
         .logo-shape {
             width: 90px; height: 90px;
             background: #2D1B33;
@@ -37,10 +37,12 @@
             display: flex; align-items: center; justify-content: center;
             animation: float 4s ease-in-out infinite;
             position: relative;
+            /* Added 2 more outlines (Total 4 border layers) */
             box-shadow: 
-                0 0 0 3px #D4AF37, /* Gold Outline */
-                0 0 0 6px #ffffff, /* White Spacer */
-                0 0 0 9px #C7D2FE; /* Lavender Outline */
+                0 0 0 2px #ffffff,        /* White Layer 1 */
+                0 0 0 4px #D4AF37,        /* Gold Layer 2 */
+                0 0 0 7px #ffffff,        /* White Layer 3 */
+                0 0 0 10px #2D1B33;       /* Outer Plum Layer 4 */
         }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -97,7 +99,7 @@
             const next = () => step < steps.length - 1 ? setStep(step + 1) : analyze();
 
             const Logo = () => (
-                <div className="flex flex-col items-center mb-12">
+                <div className="flex flex-col items-center mb-16">
                     <div className="logo-shape">
                         <div className="flex z-10 font-black text-2xl">
                             <span className="text-white">H</span>
@@ -105,7 +107,7 @@
                             <span className="text-white">P</span>
                         </div>
                     </div>
-                    <h1 className="text-xl font-black tracking-[0.4em] uppercase text-rich-plum mt-8">HEALTH GUIDE PRO</h1>
+                    <h1 className="text-xl font-black tracking-[0.4em] uppercase text-rich-plum mt-10">HEALTH GUIDE PRO</h1>
                 </div>
             );
 
@@ -126,10 +128,10 @@
 
                     <div className="grid gap-6 mb-10">
                         {[
-                            { title: "Body Balance (BMI)", val: report.bmi, ideal: report.targetBmi, desc: "Your height-to-weight ratio. Reaching ideal makes you feel light.", border: "border-rich-plum" },
-                            { title: "Daily Burn (BMR)", val: report.bmr, ideal: report.targetBmr, desc: "The calories you burn just by breathing. Your ideal burn speed is " + report.targetBmr, border: "border-premium-gold" },
+                            { title: "Body Balance (BMI)", val: report.bmi, ideal: report.targetBmi, desc: "Height-to-weight ratio. Reaching ideal makes you feel light.", border: "border-rich-plum" },
+                            { title: "Daily Burn (BMR)", val: report.bmr, ideal: report.targetBmr, desc: "Calories burned naturally. Ideal speed is " + report.targetBmr, border: "border-premium-gold" },
                             { title: "Food Fuel Limit", val: report.tdee, ideal: report.targetTdee, desc: "Your daily energy budget to reach your goals.", border: "border-rich-plum" },
-                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", desc: "The amount of stored fat. Lowering this boosts heart health.", border: "border-premium-gold" }
+                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", desc: "Stored fat ratio. Lowering this boosts heart health.", border: "border-premium-gold" }
                         ].map((item, i) => (
                             <div key={i} className={`premium-card p-6 rounded-[2rem] border-l-8 ${item.border}`}>
                                 <div className="flex justify-between items-start mb-2">
@@ -160,13 +162,13 @@
             return (
                 <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
                     <Logo />
-                    <div className="flex-1 flex flex-col justify-center">
-                        <div className="mb-10 text-center px-6">
-                            <h2 className="text-4xl font-black tracking-tighter text-rich-plum uppercase italic leading-[1.1] mb-4">{steps[step].q}</h2>
+                    <div className="flex-1 flex flex-col justify-start pt-4">
+                        <div className="mb-6 text-center px-6">
+                            <h2 className="text-4xl font-black tracking-tighter text-rich-plum uppercase italic leading-[1.1] mb-2">{steps[step].q}</h2>
                             <p className="text-clay text-xs font-extrabold uppercase tracking-widest opacity-60 leading-relaxed">{steps[step].sub}</p>
                         </div>
 
-                        <div className="premium-card p-10 rounded-[3rem] relative overflow-hidden">
+                        <div className="premium-card p-8 rounded-[3rem] relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-[6px] bg-soft-purple">
                                 <div className="h-full bg-rich-plum transition-all duration-700" style={{ width: `${((step+1)/steps.length)*100}%` }}></div>
                             </div>
@@ -181,12 +183,13 @@
                                     ))}
                                 </div>
                             ) : (
-                                <div className="mt-6 text-center">
-                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => setForm({...form, [steps[step].id]: e.target.value})}
-                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-200 mb-12 text-center text-rich-plum" />
-                                    <button onClick={next} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-[0.1em] text-xl shadow-xl">
-                                        Continue
+                                <div className="mt-4 flex flex-col">
+                                    {/* UI FIX: Move button above the keyboard input area so it's always visible */}
+                                    <button onClick={next} className="w-full bg-rich-plum text-white py-5 rounded-2xl font-black uppercase tracking-[0.1em] text-xl shadow-xl mb-6">
+                                        Continue →
                                     </button>
+                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => setForm({...form, [steps[step].id]: e.target.value})}
+                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-200 text-center text-rich-plum" />
                                 </div>
                             )}
                         </div>
