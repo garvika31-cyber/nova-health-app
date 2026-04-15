@@ -11,50 +11,72 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+'rich-plum': '#2D1B33',
+'premium-gold': '#D4AF37',
+'cream-bg': '#FDFCF8',
+'clay': '#795548',
+},
+fontFamily: {
+sans: ['Instrument Sans','sans-serif'],
+serif: ['Playfair Display','serif']
+}
+}
+}
+}
+</script>
+
 <style>
-body { background:#FDFCF8; color:#2D1B33; }
+body { background-color:#FDFCF8; color:#2D1B33; }
 .premium-card { background:#fff; border:1px solid rgba(45,27,51,0.08); box-shadow:0 20px 40px rgba(45,27,51,0.05); }
 .logo-shape {
 width:100px;height:100px;background:#2D1B33;
 clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
 display:flex;align-items:center;justify-content:center;
+animation:float 4s ease-in-out infinite;
 border:3px solid #D4AF37;
 }
+@keyframes float {0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
 .target-tag {background:#FDFCF8;border:2px solid #D4AF37;color:#D4AF37;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;}
+.fade-up {animation:fadeUp 0.4s ease-out forwards;}
+@keyframes fadeUp {from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 
-<body>
+<body class="p-4 md:p-10">
 <div id="root"></div>
 
 <script type="text/babel">
-
 const { useState } = React;
 
-function App(){
+const App = () => {
 
-const [step,setStep]=useState(0);
-const [form,setForm]=useState({
-age:'',height:'',weight:'',waist:'',neck:'',hip:'',sleep:'',
-s:'male',goal:'maintain'
+const [step, setStep] = useState(0);
+const [form, setForm] = useState({
+age:'', height:'', weight:'', waist:'', neck:'', hip:'', sleep:'',
+s:'male', goal:'maintain'
 });
-const [loading,setLoading]=useState(false);
-const [report,setReport]=useState(null);
-const [error,setError]=useState("");
+const [loading, setLoading] = useState(false);
+const [report, setReport] = useState(null);
 
-const steps=[
-{ id:'s', q:"Are you Male or Female?", options:[['male','👨 Male'],['female','👩 Female']]},
-{ id:'age', q:"Age?", type:'number'},
-{ id:'weight', q:"Weight (kg)?", type:'number'},
-{ id:'height', q:"Height (cm)?", type:'number'},
-{ id:'waist', q:"Waist (cm)?", type:'number'},
-{ id:'neck', q:"Neck (cm)?", type:'number'},
-...(form.s==='female'?[{id:'hip',q:"Hip (cm)?",type:'number'}]:[]),
-{ id:'sleep', q:"Sleep hours?", type:'number'},
-{ id:'goal', q:"Goal?", options:[['loss','Lose Fat'],['maintain','Maintain'],['gain','Gain Muscle']]}
+const steps = [
+{ id:'s', q:"Are you Male or Female?", sub:"This helps us calculate your body type", options:[['male','👨‍💼 Male'],['female','👩‍💼 Female']] },
+{ id:'age', q:"How old are you?", sub:"Your age affects your energy burn", type:'number' },
+{ id:'weight', q:"How much do you weigh?", sub:"Enter your weight in Kg", type:'number' },
+{ id:'height', q:"How tall are you?", sub:"Enter height in Cm", type:'number' },
+{ id:'waist', q:"Measure your waist", sub:"Around belly button", type:'number' },
+{ id:'neck', q:"Measure your neck", sub:"Below throat", type:'number' },
+...(form.s==='female'?[{ id:'hip', q:"Measure hips", sub:"Widest part", type:'number' }]:[]),
+{ id:'sleep', q:"Sleep hours?", sub:"Average sleep", type:'number' },
+{ id:'goal', q:"Your goal?", sub:"Choose one", options:[['loss','Lose Fat 📉'],['maintain','Stay Healthy ✨'],['gain','Build Muscle 💪']] }
 ];
 
-const isValid=()=>{
+// ✅ validation
+const isValid = () => {
 const req=['age','height','weight','waist','neck','sleep'];
 for(let k of req){
 if(!form[k]||Number(form[k])<=0)return false;
@@ -63,7 +85,8 @@ if(form.s==='female'&&(!form.hip||form.hip<=0))return false;
 return true;
 };
 
-const analyze=()=>{
+const analyze = () => {
+
 const age=Number(form.age);
 const weight=Number(form.weight);
 const height=Number(form.height);
@@ -79,11 +102,12 @@ return;
 setLoading(true);
 
 setTimeout(()=>{
+
 let bmr=(10*weight)+(6.25*height)-(5*age)+(form.s==='male'?5:-161);
 let tdee=Math.round(bmr*1.5);
 
-if(form.goal==="loss")tdee-=400;
-if(form.goal==="gain")tdee+=300;
+if(form.goal==="loss") tdee-=400;
+if(form.goal==="gain") tdee+=300;
 
 let bmi=(weight/((height/100)**2)).toFixed(1);
 
@@ -92,10 +116,10 @@ let fat=form.s==="male"
 :(163.205*Math.log10(waist+hip-neck)-97.684*Math.log10(height)-78.387);
 
 setReport({
-bmr:Math.round(bmr),
 tdee,
-bmi,
+bmr:Math.round(bmr),
 fat:Math.round(fat),
+bmi,
 score:Math.max(55,100-Math.abs(bmi-22)*5)
 });
 
@@ -104,11 +128,10 @@ setLoading(false);
 },1200);
 };
 
-const next=()=>{
-setError("");
+const next = () => {
 if(step===steps.length-1){
 if(!isValid()){
-setError("Fill all fields");
+alert("Fill all fields correctly");
 return;
 }
 analyze();
@@ -117,76 +140,95 @@ setStep(step+1);
 }
 };
 
-const Logo=()=>(
-<div style={{textAlign:'center',marginBottom:'20px'}}>
+const Logo = () => (
+<div className="flex flex-col items-center mb-10">
 <div className="logo-shape">
-<span style={{color:'white',fontWeight:'900'}}>HGP</span>
+<div className="flex font-black text-3xl">
+<span className="text-white">H</span>
+<span className="text-premium-gold mx-1">G</span>
+<span className="text-white">P</span>
 </div>
-<h2>HEALTH GUIDE PRO</h2>
+</div>
+<h1 className="text-xl font-black tracking-[0.4em] mt-6">HEALTH GUIDE PRO</h1>
 </div>
 );
 
 if(loading){
-return <div style={{textAlign:'center',marginTop:'100px'}}>Loading...</div>;
-}
-
-if(report){
-return(
-<div style={{maxWidth:'400px',margin:'auto',textAlign:'center'}}>
-<Logo/>
-<h1>{report.score}</h1>
-<p>BMI: {report.bmi}</p>
-<p>BMR: {report.bmr}</p>
-<p>Calories: {report.tdee}</p>
-<p>Fat: {report.fat}%</p>
-
-<button onClick={()=>{
-const phone="919876543210";
-window.open(`https://wa.me/${phone}?text=My score is ${report.score}`);
-}}>
-Buy Plan ₹199
-</button>
+return (
+<div className="min-h-screen flex items-center justify-center">
+<div className="w-14 h-14 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
 </div>
 );
 }
 
-const cur=steps[step];
+if(report){
+return (
+<div className="max-w-md mx-auto">
+<Logo/>
 
-return(
-<div style={{maxWidth:'400px',margin:'auto'}}>
+<div className="premium-card p-8 rounded-3xl text-center mb-6">
+<h2 className="text-6xl font-black">{report.score}</h2>
+</div>
+
+<div className="grid gap-4">
+<div className="premium-card p-4 rounded-xl">BMI: {report.bmi}</div>
+<div className="premium-card p-4 rounded-xl">BMR: {report.bmr}</div>
+<div className="premium-card p-4 rounded-xl">Calories: {report.tdee}</div>
+<div className="premium-card p-4 rounded-xl">Body Fat: {report.fat}%</div>
+</div>
+
+<button
+onClick={()=>{
+const phone="919876543210";
+const msg=encodeURIComponent(`My score: ${report.score}`);
+window.open(`https://wa.me/${phone}?text=${msg}`);
+}}
+className="w-full mt-8 bg-rich-plum text-white py-5 rounded-2xl font-black">
+Unlock Full Plan ₹199
+</button>
+
+</div>
+);
+}
+
+const cur = steps[step];
+
+return (
+<div className="max-w-md mx-auto">
 
 <Logo/>
 
-{step>0 && <button onClick={()=>setStep(step-1)}>Back</button>}
+<h2 className="text-3xl font-black text-center mb-4">{cur.q}</h2>
+<p className="text-center mb-6 text-sm opacity-60">{cur.sub}</p>
 
-<h3>{cur.q}</h3>
-
-{cur.options?(
-cur.options.map(o=>(
-<button key={o[0]} onClick={()=>{setForm({...form,[cur.id]:o[0]});next();}}>
+{cur.options ? (
+<div className="grid gap-4">
+{cur.options.map(o=>(
+<button key={o[0]} onClick={()=>{setForm({...form,[cur.id]:o[0]});next();}}
+className="p-5 border rounded-2xl">
 {o[1]}
 </button>
-))
+))}
+</div>
 ):(
 <div>
-<input
-type="number"
+<input type="number"
 value={form[cur.id]||""}
 onChange={e=>setForm({...form,[cur.id]:e.target.value})}
+className="w-full p-4 border-b-2 text-center text-3xl mb-6"
 />
-
-{error && <p>{error}</p>}
-
-<button onClick={next}>Continue</button>
+<button onClick={next}
+className="w-full bg-rich-plum text-white py-5 rounded-2xl">
+Continue
+</button>
 </div>
 )}
 
 </div>
 );
-}
+};
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
