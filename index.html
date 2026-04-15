@@ -29,20 +29,21 @@
         body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; }
         .premium-card { background: #ffffff; border: 1px solid rgba(45, 27, 51, 0.08); box-shadow: 0 20px 40px rgba(45, 27, 51, 0.05); }
         
-        /* MULTI-BORDER HEXAGON LOGO */
+        /* BOLD MULTI-BORDER LOGO FIX */
         .logo-shape {
-            width: 90px; height: 90px;
+            width: 85px; height: 85px;
             background: #2D1B33;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
             animation: float 4s ease-in-out infinite;
             position: relative;
-            /* Added 2 more outlines (Total 4 border layers) */
+            /* Bold, clearly defined outlines */
+            outline: 4px solid #D4AF37; 
+            outline-offset: 4px;
             box-shadow: 
-                0 0 0 2px #ffffff,        /* White Layer 1 */
-                0 0 0 4px #D4AF37,        /* Gold Layer 2 */
-                0 0 0 7px #ffffff,        /* White Layer 3 */
-                0 0 0 10px #2D1B33;       /* Outer Plum Layer 4 */
+                0 0 0 4px #ffffff,
+                0 0 0 8px #2D1B33,
+                0 0 0 12px #C7D2FE;
         }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -99,7 +100,7 @@
             const next = () => step < steps.length - 1 ? setStep(step + 1) : analyze();
 
             const Logo = () => (
-                <div className="flex flex-col items-center mb-16">
+                <div className="flex flex-col items-center mb-20 pt-6">
                     <div className="logo-shape">
                         <div className="flex z-10 font-black text-2xl">
                             <span className="text-white">H</span>
@@ -128,10 +129,10 @@
 
                     <div className="grid gap-6 mb-10">
                         {[
-                            { title: "Body Balance (BMI)", val: report.bmi, ideal: report.targetBmi, desc: "Height-to-weight ratio. Reaching ideal makes you feel light.", border: "border-rich-plum" },
-                            { title: "Daily Burn (BMR)", val: report.bmr, ideal: report.targetBmr, desc: "Calories burned naturally. Ideal speed is " + report.targetBmr, border: "border-premium-gold" },
-                            { title: "Food Fuel Limit", val: report.tdee, ideal: report.targetTdee, desc: "Your daily energy budget to reach your goals.", border: "border-rich-plum" },
-                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", desc: "Stored fat ratio. Lowering this boosts heart health.", border: "border-premium-gold" }
+                            { title: "Body Balance (BMI)", val: report.bmi, ideal: report.targetBmi, border: "border-rich-plum" },
+                            { title: "Daily Burn (BMR)", val: report.bmr, ideal: report.targetBmr, border: "border-premium-gold" },
+                            { title: "Food Fuel Limit", val: report.tdee, ideal: report.targetTdee, border: "border-rich-plum" },
+                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", border: "border-premium-gold" }
                         ].map((item, i) => (
                             <div key={i} className={`premium-card p-6 rounded-[2rem] border-l-8 ${item.border}`}>
                                 <div className="flex justify-between items-start mb-2">
@@ -139,18 +140,12 @@
                                     <span className="target-tag">Ideal: {item.ideal}</span>
                                 </div>
                                 <p className="text-4xl font-black mb-2">{item.val}</p>
-                                <p className="text-sm text-clay font-bold italic leading-tight">{item.desc}</p>
                             </div>
                         ))}
                     </div>
 
                     <div className="bg-rich-plum text-white p-10 rounded-[3rem] shadow-2xl">
                         <h3 className="text-2xl font-black mb-6 italic uppercase tracking-tighter text-premium-gold">The Awakening</h3>
-                        <ul className="space-y-4 mb-10 text-sm font-bold opacity-90">
-                            <li>✔️ Fix your metabolism once and for all</li>
-                            <li>✔️ Learn when your body burns fat the fastest</li>
-                            <li>✔️ Stop feeling tired and sluggish</li>
-                        </ul>
                         <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Hi, I want my full guide. My Score: ${Math.round(report.score)}`)} 
                             className="w-full bg-white text-rich-plum py-6 rounded-2xl font-black uppercase tracking-widest text-lg shadow-xl active:scale-95 transition-all">
                             Unlock Full Plan - ₹199
@@ -162,10 +157,11 @@
             return (
                 <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
                     <Logo />
-                    <div className="flex-1 flex flex-col justify-start pt-4">
+                    <div className="flex-1 flex flex-col justify-start pt-2">
                         <div className="mb-6 text-center px-6">
-                            <h2 className="text-4xl font-black tracking-tighter text-rich-plum uppercase italic leading-[1.1] mb-2">{steps[step].q}</h2>
-                            <p className="text-clay text-xs font-extrabold uppercase tracking-widest opacity-60 leading-relaxed">{steps[step].sub}</p>
+                            {/* REDUCED QUESTION FONT SIZE */}
+                            <h2 className="text-2xl font-black tracking-tight text-rich-plum uppercase italic leading-[1.2] mb-2">{steps[step].q}</h2>
+                            <p className="text-clay text-[10px] font-extrabold uppercase tracking-widest opacity-60 leading-relaxed">{steps[step].sub}</p>
                         </div>
 
                         <div className="premium-card p-8 rounded-[3rem] relative overflow-hidden">
@@ -177,19 +173,18 @@
                                 <div className="grid gap-4 mt-6">
                                     {steps[step].options.map(o => (
                                         <button key={o[0]} onClick={() => { setForm({...form, [steps[step].id]: o[0]}); next(); }}
-                                            className="w-full p-6 text-left rounded-2xl bg-soft-purple/30 border-2 border-transparent hover:border-rich-plum transition-all font-black text-2xl flex justify-between items-center group">
+                                            className="w-full p-6 text-left rounded-2xl bg-soft-purple/30 border-2 border-transparent hover:border-rich-plum transition-all font-black text-xl flex justify-between items-center group">
                                             {o[1]} <span className="opacity-20 group-hover:opacity-100 transition-all text-rich-plum">→</span>
                                         </button>
                                     ))}
                                 </div>
                             ) : (
                                 <div className="mt-4 flex flex-col">
-                                    {/* UI FIX: Move button above the keyboard input area so it's always visible */}
-                                    <button onClick={next} className="w-full bg-rich-plum text-white py-5 rounded-2xl font-black uppercase tracking-[0.1em] text-xl shadow-xl mb-6">
+                                    <button onClick={next} className="w-full bg-rich-plum text-white py-5 rounded-2xl font-black uppercase tracking-[0.1em] text-lg shadow-xl mb-6">
                                         Continue →
                                     </button>
                                     <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => setForm({...form, [steps[step].id]: e.target.value})}
-                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-200 text-center text-rich-plum" />
+                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-5xl font-black outline-none transition-all placeholder:text-gray-200 text-center text-rich-plum" />
                                 </div>
                             )}
                         </div>
