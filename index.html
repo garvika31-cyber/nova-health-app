@@ -16,7 +16,8 @@
                     colors: {
                         'rich-plum': '#2D1B33',
                         'premium-gold': '#D4AF37',
-                        'cream-bg': '#FDFCF8',
+                        'soft-purple': '#F5F2FF', // The New Premium Background
+                        'lavender-accent': '#C7D2FE',
                         'clay': '#795548',
                     },
                     fontFamily: { sans: ['Instrument Sans', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
@@ -25,25 +26,28 @@
         }
     </script>
     <style>
-        body { background-color: #FDFCF8; color: #2D1B33; -webkit-font-smoothing: antialiased; }
+        body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; }
         .premium-card { background: #ffffff; border: 1px solid rgba(45, 27, 51, 0.08); box-shadow: 0 20px 40px rgba(45, 27, 51, 0.05); }
         
-        /* DUAL BORDER HEXAGON LOGO */
+        /* TRIPLE BORDER HEXAGON LOGO */
         .logo-shape {
-            width: 100px; height: 100px;
+            width: 90px; height: 90px;
             background: #2D1B33;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
             animation: float 4s ease-in-out infinite;
             position: relative;
-            border: 3px solid #D4AF37; /* Primary Gold Border */
+            box-shadow: 
+                0 0 0 3px #D4AF37, /* Gold Outline */
+                0 0 0 6px #ffffff, /* White Spacer */
+                0 0 0 9px #C7D2FE; /* Lavender Outline */
         }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         
-        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.03); } }
-        
-        .target-tag { background: #FDFCF8; border: 2px solid #D4AF37; color: #D4AF37; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .target-tag { background: #F5F2FF; border: 1px solid #D4AF37; color: #D4AF37; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .fade-up { animation: fadeUp 0.4s ease-out forwards; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -59,8 +63,8 @@
             const [report, setReport] = useState(null);
 
             const steps = [
-                { id: 's', q: "Are you Male or Female?", sub: "This helps us calculate your body type", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "✨" },
-                { id: 'age', q: "How old are you?", sub: "Your age affects your energy burn", icon: "🎂", type: 'number', placeholder: 'Years' },
+                { id: 's', q: "Are you Male or Female?", sub: "Helps us calculate your body type", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "✨" },
+                { id: 'age', q: "How old are you?", sub: "Age affects your energy burn", icon: "🎂", type: 'number', placeholder: 'Years' },
                 { id: 'weight', q: "How much do you weigh?", sub: "Enter your weight in Kilograms", icon: "⚖️", type: 'number', placeholder: 'Kg' },
                 { id: 'height', q: "How tall are you?", sub: "Enter your height in Centimeters", icon: "📏", type: 'number', placeholder: 'Cm' },
                 { id: 'waist', q: "Measure your waist", sub: "Measure around your belly button", icon: "📏", type: 'number', placeholder: 'Cm' },
@@ -85,13 +89,7 @@
                     
                     let targetWeight = 22.0 * ((height/100)**2);
                     let targetBmr = Math.round((10*targetWeight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161));
-                    let targetFat = s === 'male' ? "15" : "22";
-
-                    setReport({ 
-                        tdee, bmr: Math.round(bmr), fat: Math.round(fat), bmi, 
-                        score: Math.max(55, 100 - (Math.abs(bmi-22)*5)),
-                        targetBmr, targetBmi: "22.0", targetFat, targetTdee: Math.round(targetBmr * 1.4)
-                    });
+                    setReport({ tdee, bmr: Math.round(bmr), fat: Math.round(fat), bmi, score: Math.max(55, 100 - (Math.abs(bmi-22)*5)), targetBmr, targetBmi: "22.0", targetFat: (s === 'male' ? "15" : "22"), targetTdee: Math.round(targetBmr * 1.4) });
                     setLoading(false);
                 }, 2800);
             };
@@ -99,22 +97,22 @@
             const next = () => step < steps.length - 1 ? setStep(step + 1) : analyze();
 
             const Logo = () => (
-                <div className="flex flex-col items-center mb-10">
+                <div className="flex flex-col items-center mb-12">
                     <div className="logo-shape">
-                        <div className="flex z-10 font-black text-3xl">
+                        <div className="flex z-10 font-black text-2xl">
                             <span className="text-white">H</span>
                             <span className="text-premium-gold mx-0.5">G</span>
                             <span className="text-white">P</span>
                         </div>
                     </div>
-                    <h1 className="text-xl font-black tracking-[0.4em] uppercase text-rich-plum mt-6">HEALTH GUIDE PRO</h1>
+                    <h1 className="text-xl font-black tracking-[0.4em] uppercase text-rich-plum mt-8">HEALTH GUIDE PRO</h1>
                 </div>
             );
 
             if (loading) return (
-                <div className="min-h-screen flex flex-col items-center justify-center bg-cream-bg p-10 text-center">
+                <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple text-center">
                     <div className="w-14 h-14 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-8 font-black uppercase tracking-[0.2em] text-rich-plum italic text-lg">Finding your ideal targets...</p>
+                    <p className="mt-8 font-black uppercase tracking-[0.2em] text-rich-plum italic text-lg">Calculating Results...</p>
                 </div>
             );
 
@@ -127,45 +125,21 @@
                     </div>
 
                     <div className="grid gap-6 mb-10">
-                        {/* 1. BMI */}
-                        <div className="premium-card p-6 rounded-[2rem] border-l-8 border-rich-plum">
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-rich-plum text-xs font-black uppercase tracking-wider">Body Balance (BMI)</h3>
-                                <span className="target-tag">Ideal: {report.targetBmi}</span>
+                        {[
+                            { title: "Body Balance (BMI)", val: report.bmi, ideal: report.targetBmi, desc: "Your height-to-weight ratio. Reaching ideal makes you feel light.", border: "border-rich-plum" },
+                            { title: "Daily Burn (BMR)", val: report.bmr, ideal: report.targetBmr, desc: "The calories you burn just by breathing. Your ideal burn speed is " + report.targetBmr, border: "border-premium-gold" },
+                            { title: "Food Fuel Limit", val: report.tdee, ideal: report.targetTdee, desc: "Your daily energy budget to reach your goals.", border: "border-rich-plum" },
+                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", desc: "The amount of stored fat. Lowering this boosts heart health.", border: "border-premium-gold" }
+                        ].map((item, i) => (
+                            <div key={i} className={`premium-card p-6 rounded-[2rem] border-l-8 ${item.border}`}>
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="text-rich-plum text-xs font-black uppercase tracking-wider">{item.title}</h3>
+                                    <span className="target-tag">Ideal: {item.ideal}</span>
+                                </div>
+                                <p className="text-4xl font-black mb-2">{item.val}</p>
+                                <p className="text-sm text-clay font-bold italic leading-tight">{item.desc}</p>
                             </div>
-                            <p className="text-4xl font-black mb-2">{report.bmi}</p>
-                            <p className="text-sm text-clay font-bold italic leading-tight">Your height-to-weight ratio. Reaching {report.targetBmi} will help you feel light and healthy.</p>
-                        </div>
-
-                        {/* 2. BMR */}
-                        <div className="premium-card p-6 rounded-[2rem] border-l-8 border-premium-gold">
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-rich-plum text-xs font-black uppercase tracking-wider">Daily Burn (BMR)</h3>
-                                <span className="target-tag">Ideal: {report.targetBmr}</span>
-                            </div>
-                            <p className="text-4xl font-black mb-2">{report.bmr} <span className="text-sm opacity-30 font-normal tracking-normal">Kcal</span></p>
-                            <p className="text-sm text-clay font-bold italic leading-tight">The calories you burn just by breathing. Your ideal burn speed is {report.targetBmr}.</p>
-                        </div>
-
-                        {/* 3. FUEL LIMIT */}
-                        <div className="premium-card p-6 rounded-[2rem] border-l-8 border-rich-plum">
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-rich-plum text-xs font-black uppercase tracking-wider">Food Fuel Limit</h3>
-                                <span className="target-tag">Ideal: {report.targetTdee}</span>
-                            </div>
-                            <p className="text-4xl font-black mb-2">{report.tdee} <span className="text-sm opacity-30 font-normal tracking-normal">Kcal</span></p>
-                            <p className="text-sm text-clay font-bold italic leading-tight">Your daily "budget" for food to reach your goals without feeling hungry.</p>
-                        </div>
-
-                        {/* 4. BODY FAT */}
-                        <div className="premium-card p-6 rounded-[2rem] border-l-8 border-premium-gold">
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-rich-plum text-xs font-black uppercase tracking-wider">Body Fat Level</h3>
-                                <span className="target-tag">Ideal: {report.targetFat}%</span>
-                            </div>
-                            <p className="text-4xl font-black mb-2">{report.fat}%</p>
-                            <p className="text-sm text-clay font-bold italic leading-tight">The amount of fat your body stores. Lowering this will give you much more energy.</p>
-                        </div>
+                        ))}
                     </div>
 
                     <div className="bg-rich-plum text-white p-10 rounded-[3rem] shadow-2xl">
@@ -183,36 +157,34 @@
                 </div>
             );
 
-            const cur = steps[step];
-
             return (
                 <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
                     <Logo />
                     <div className="flex-1 flex flex-col justify-center">
                         <div className="mb-10 text-center px-6">
-                            <h2 className="text-4xl font-black tracking-tighter text-rich-plum uppercase italic leading-[1.1] mb-4">{cur.q}</h2>
-                            <p className="text-clay text-xs font-extrabold uppercase tracking-widest opacity-60 leading-relaxed">{cur.sub}</p>
+                            <h2 className="text-4xl font-black tracking-tighter text-rich-plum uppercase italic leading-[1.1] mb-4">{steps[step].q}</h2>
+                            <p className="text-clay text-xs font-extrabold uppercase tracking-widest opacity-60 leading-relaxed">{steps[step].sub}</p>
                         </div>
 
                         <div className="premium-card p-10 rounded-[3rem] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-[6px] bg-gray-100">
+                            <div className="absolute top-0 left-0 w-full h-[6px] bg-soft-purple">
                                 <div className="h-full bg-rich-plum transition-all duration-700" style={{ width: `${((step+1)/steps.length)*100}%` }}></div>
                             </div>
                             
-                            {cur.options ? (
+                            {steps[step].options ? (
                                 <div className="grid gap-4 mt-6">
-                                    {cur.options.map(o => (
-                                        <button key={o[0]} onClick={() => { setForm({...form, [cur.id]: o[0]}); next(); }}
-                                            className="w-full p-6 text-left rounded-2xl bg-cream-bg border-2 border-transparent hover:border-rich-plum transition-all font-black text-2xl flex justify-between items-center group">
+                                    {steps[step].options.map(o => (
+                                        <button key={o[0]} onClick={() => { setForm({...form, [steps[step].id]: o[0]}); next(); }}
+                                            className="w-full p-6 text-left rounded-2xl bg-soft-purple/30 border-2 border-transparent hover:border-rich-plum transition-all font-black text-2xl flex justify-between items-center group">
                                             {o[1]} <span className="opacity-20 group-hover:opacity-100 transition-all text-rich-plum">→</span>
                                         </button>
                                     ))}
                                 </div>
                             ) : (
                                 <div className="mt-6 text-center">
-                                    <input autoFocus type={cur.type} placeholder={cur.placeholder} value={form[cur.id]} onChange={e => setForm({...form, [cur.id]: e.target.value})}
-                                        className="w-full bg-transparent border-b-4 border-gray-100 focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-100 mb-12 text-center text-rich-plum" />
-                                    <button onClick={next} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-[0.1em] text-xl shadow-xl hover:bg-black transition-all">
+                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => setForm({...form, [steps[step].id]: e.target.value})}
+                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-200 mb-12 text-center text-rich-plum" />
+                                    <button onClick={next} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-[0.1em] text-xl shadow-xl">
                                         Continue
                                     </button>
                                 </div>
