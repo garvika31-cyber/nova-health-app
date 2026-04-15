@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AURA ELITE | Clinical Intelligence</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <title>AURAX | Clinical Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        :root { --accent: #00f2ff; --bg: #030712; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .gradient-glow { background: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.15) 0%, transparent 70%); }
-        .btn-premium { background: linear-gradient(90deg, #00f2ff, #0066ff); box-shadow: 0 0 30px rgba(0, 242, 255, 0.3); }
-        .card-inner { border-radius: 2rem; padding: 2rem; position: relative; overflow: hidden; }
-        .card-inner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%); pointer-events: none; }
+        :root { --accent: #00f2ff; --bg: #020617; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #f8fafc; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .neon-glow { box-shadow: 0 0 20px rgba(0, 242, 255, 0.15); }
+        .premium-gradient { background: linear-gradient(135deg, #0f172a 0%, #020617 100%); }
     </style>
 </head>
-<body>
+<body class="premium-gradient min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -28,63 +26,89 @@
 
         const App = () => {
             const [step, setStep] = useState(0);
-            const [data, setData] = useState({ w: '', h: '', a: '', s: 'm', goal: 'lean', activity: 'mod', stress: 'low' });
+            const [data, setData] = useState({ w: '', h: '', a: '', s: 'm', goal: 'lean', activity: 'mod' });
             const [loading, setLoading] = useState(false);
             const [result, setResult] = useState(null);
 
             const steps = [
-                { id: 's', q: "Biological Baseline", sub: "Clinical sex determination for hormonal modeling", options: [['m', 'MALE (XY)'], ['f', 'FEMALE (XX)']], icon: "🧬" },
-                { id: 'a', q: "Chronological Age", sub: "Metabolic decay coefficient (Mifflin Model)", icon: "⏳", type: 'number', placeholder: 'Years' },
-                { id: 'w', q: "Body Mass (Kg)", sub: "Static gravitational mass analysis", icon: "⚖️", type: 'number', placeholder: 'Kg' },
-                { id: 'h', q: "Stature (Cm)", sub: "Needed for BSA and Lean Mass partitioning", icon: "📏", type: 'number', placeholder: 'Cm' },
-                { id: 'goal', q: "Genetic Objective", sub: "Desired physiological shift", options: [['lean', 'Lipid Oxidation 📉'], ['mass', 'Myofibrillar Growth 💪'], ['lon', 'Cellular Longevity ✨']], icon: "🎯" },
-                { id: 'stress', q: "Cortisol Load", sub: "CNS stress markers analysis", options: [['low', 'Low / Managed'], ['high', 'High / Chronic']], icon: "🧠" }
+                { id: 's', q: "Biological Origin", sub: "Baseline hormonal modeling", options: [['m', 'Male'], ['f', 'Female']], icon: "🧬" },
+                { id: 'a', q: "Chronological Age", sub: "Metabolic decay coefficient", icon: "⏳", type: 'number', placeholder: 'Years' },
+                { id: 'w', q: "Body Mass", sub: "Measured in Kilograms", icon: "⚖️", type: 'number', placeholder: 'Kg' },
+                { id: 'h', q: "Stature", sub: "Measured in Centimeters", icon: "📏", type: 'number', placeholder: 'Cm' },
+                { id: 'goal', q: "Genetic Target", sub: "Physiological objective", options: [['lean', 'Fat Oxidation'], ['mass', 'Muscle Growth']], icon: "🎯" }
             ];
 
             const runAnalysis = () => {
                 setLoading(true);
                 setTimeout(() => {
                     let bmr = (10 * data.w) + (6.25 * data.h) - (5 * data.a) + (data.s === 'm' ? 5 : -161);
-                    setResult({ bmr: Math.round(bmr), tdee: Math.round(bmr * 1.55) });
+                    const tdee = Math.round(bmr * 1.55);
+                    setResult({ 
+                        bmr: Math.round(bmr), 
+                        tdee,
+                        tef: Math.round(tdee * 0.1),
+                        neat: Math.round(tdee * 0.2)
+                    });
                     setLoading(false);
-                }, 3000);
+                }, 2500);
             };
 
             if (loading) return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-10 gradient-glow">
-                    <div className="w-16 h-16 rounded-full border-b-2 border-[#00f2ff] animate-spin mb-8"></div>
-                    <h2 className="text-xs font-black tracking-[0.5em] text-[#00f2ff] uppercase">Cross-Referencing Research</h2>
-                    <p className="text-slate-500 text-[10px] mt-4 mono italic">Applying adaptive thermogenesis algorithms...</p>
+                <div className="min-h-screen flex flex-col items-center justify-center p-10">
+                    <div className="w-12 h-12 border-2 border-[#00f2ff] border-t-transparent rounded-full animate-spin mb-6"></div>
+                    <p className="text-[10px] font-black tracking-[0.4em] text-[#00f2ff] uppercase">Analyzing Academic Datasets</p>
                 </div>
             );
 
             if (result) return (
-                <div className="max-w-md mx-auto p-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                    <div className="text-center mt-8 mb-12">
-                        <span className="text-[10px] font-bold text-[#00f2ff] uppercase tracking-widest border border-[#00f2ff]/30 px-3 py-1 rounded-full">Report ID: 2026-X8</span>
-                        <h1 className="text-4xl font-black mt-4 italic tracking-tighter uppercase">Clinical<br/>Output</h1>
+                <div className="max-w-md mx-auto p-6 animate-in fade-in duration-1000">
+                    <header className="text-center mt-10 mb-10">
+                        <h1 className="text-2xl font-black italic tracking-tighter uppercase italic">AURA<span className="text-[#00f2ff]">X</span> OUTPUT</h1>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">Clinical Assessment: Verified</p>
+                    </header>
+
+                    {/* MAIN SCORE */}
+                    <div className="glass rounded-[2.5rem] p-10 text-center mb-8 neon-glow border-[#00f2ff]/20">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Daily Maintenance (TDEE)</p>
+                        <h2 className="text-7xl font-black text-white">{result.tdee}</h2>
+                        <p className="text-xs text-[#00f2ff] font-bold mt-2 uppercase tracking-widest">Kcal / Day</p>
                     </div>
 
-                    <div className="glass card-inner mb-6 text-center shadow-2xl">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">TDEE (Metabolic Velocity)</p>
-                        <h2 className="text-7xl font-black text-white tracking-tighter">{result.tdee}</h2>
-                        <p className="text-xs text-slate-500 mt-2 mono uppercase tracking-widest font-bold">Kcal / 24h</p>
+                    <div className="grid gap-4 mb-10">
+                        {/* RESULT 1 */}
+                        <div className="glass p-6 rounded-3xl">
+                            <h3 className="text-[#00f2ff] text-[10px] font-black uppercase tracking-widest mb-2">01. Basal Metabolic Rate (BMR)</h3>
+                            <p className="text-xl font-bold mb-1">{result.bmr} kcal</p>
+                            <p className="text-xs text-slate-400 leading-relaxed">The energy your organs use just to keep you alive. Think of this as your "Engine Idling" speed—you burn this even while sleeping.</p>
+                        </div>
+
+                        {/* RESULT 2 */}
+                        <div className="glass p-6 rounded-3xl">
+                            <h3 className="text-purple-400 text-[10px] font-black uppercase tracking-widest mb-2">02. Thermic Effect of Food (TEF)</h3>
+                            <p className="text-xl font-bold mb-1">{result.tef} kcal</p>
+                            <p className="text-xs text-slate-400 leading-relaxed">The calories your body spends just to digest your meals. Scientific studies show that high-protein diets can actually increase this number significantly.</p>
+                        </div>
+
+                        {/* RESULT 3 */}
+                        <div className="glass p-6 rounded-3xl">
+                            <h3 className="text-orange-400 text-[10px] font-black uppercase tracking-widest mb-2">03. Non-Exercise Activity (NEAT)</h3>
+                            <p className="text-xl font-bold mb-1">{result.neat} kcal</p>
+                            <p className="text-xs text-slate-400 leading-relaxed">Energy burned through movement that isn't "exercise"—like walking, fidgeting, or standing. This is often the "hidden secret" to long-term fat loss.</p>
+                        </div>
+
+                        {/* RESULT 4 */}
+                        <div className="glass p-6 rounded-3xl border-l-4 border-emerald-500">
+                            <h3 className="text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-2">04. Estimated Lean Mass Index</h3>
+                            <p className="text-xl font-bold mb-1">Standard Optimal</p>
+                            <p className="text-xs text-slate-400 leading-relaxed">Based on your height/weight ratio, your body is currently prioritized for <strong>{data.goal === 'lean' ? 'Efficiency' : 'Power'}</strong>. This determines how well you handle carbohydrates.</p>
+                        </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="glass p-6 rounded-[1.5rem] border-l-4 border-[#00f2ff]">
-                            <h3 className="text-[10px] font-black text-[#00f2ff] uppercase mb-1">Pillar 1: Basal Efficiency</h3>
-                            <p className="text-xs text-slate-300 leading-relaxed">Your BMR is <strong>{result.bmr} kcal</strong>. As per <em>Am. J. Clin. Nutr.</em>, this accounts for cellular maintenance at rest. Dropping intake below this triggers metabolic defense.</p>
-                        </div>
-                        <div className="glass p-6 rounded-[1.5rem] border-l-4 border-emerald-400">
-                            <h3 className="text-[10px] font-black text-emerald-400 uppercase mb-1">Pillar 2: Thermic Variance</h3>
-                            <p className="text-xs text-slate-300 leading-relaxed">Thermic Effect of Food (TEF) is estimated at <strong>{Math.round(result.tdee * 0.1)} kcal</strong>. Studies suggest protein-dense meals increase this efficiency by 20% compared to lipids.</p>
-                        </div>
-                        <div className="glass p-6 rounded-[1.5rem] bg-indigo-900/10 border border-indigo-500/30">
-                            <h3 className="text-xs font-bold text-white mb-3">💎 ELITE PROTOCOL LOCKED</h3>
-                            <p className="text-[10px] text-indigo-200 mb-6">Full nutrient partitioning and insulin sensitivity modeling required for premium users.</p>
-                            <button className="w-full btn-premium py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] text-white">Unlock Full Diagnostics</button>
-                        </div>
+                    {/* UPSELL */}
+                    <div className="bg-white text-black p-8 rounded-[2.5rem] text-center shadow-2xl mb-12">
+                        <h3 className="text-xl font-black mb-2 uppercase italic tracking-tighter">Full Clinical Blueprint</h3>
+                        <p className="text-sm font-medium mb-6 opacity-70 italic">Unlock your 7-day Hormone Optimization & Macro Split.</p>
+                        <button className="w-full bg-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs">Unlock Premium Access</button>
                     </div>
                 </div>
             );
@@ -92,26 +116,23 @@
             const cur = steps[step];
 
             return (
-                <div className="max-w-md mx-auto min-h-screen flex flex-col p-6 gradient-glow">
+                <div className="max-w-md mx-auto min-h-screen flex flex-col p-6">
                     <header className="py-12 flex justify-between items-center">
-                        <div className="h-[2px] w-12 bg-[#00f2ff]"></div>
-                        <h1 className="text-lg font-black tracking-[0.3em] italic uppercase">AURA<span className="text-[#00f2ff]">X</span></h1>
-                        <div className="h-[2px] w-12 bg-slate-800"></div>
+                        <h1 className="text-sm font-black tracking-[0.4em] uppercase italic">AURA<span className="text-[#00f2ff]">X</span></h1>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Step {step + 1} / {steps.length}</span>
                     </header>
 
                     <div className="flex-1 flex flex-col justify-center">
-                        <div className="mb-12">
-                            <span className="mono text-[#00f2ff] text-xs font-bold uppercase tracking-widest mb-2 block">Phase 0{step + 1}</span>
-                            <h2 className="text-4xl font-black tracking-tight leading-tight">{cur.q}</h2>
-                            <p className="text-slate-500 text-sm mt-2">{cur.sub}</p>
-                        </div>
+                        <div className="text-4xl mb-6">{cur.icon}</div>
+                        <h2 className="text-4xl font-black mb-2 tracking-tighter uppercase italic">{cur.q}</h2>
+                        <p className="text-slate-500 text-sm mb-12 font-medium">{cur.sub}</p>
 
-                        <div className="glass rounded-[2.5rem] p-8 shadow-2xl">
+                        <div className="glass p-10 rounded-[3rem] shadow-2xl">
                             {cur.options ? (
                                 <div className="space-y-3">
                                     {cur.options.map(o => (
                                         <button key={o[0]} onClick={() => { setData({...data, [cur.id]: o[0]}); step < steps.length - 1 ? setStep(step + 1) : runAnalysis(); }}
-                                            className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-left font-bold text-sm uppercase tracking-widest hover:border-[#00f2ff] transition-all">
+                                            className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-left font-bold text-xs uppercase tracking-[0.2em] hover:border-[#00f2ff] hover:bg-[#00f2ff]/5 transition-all">
                                             {o[1]}
                                         </button>
                                     ))}
@@ -119,10 +140,10 @@
                             ) : (
                                 <div>
                                     <input autoFocus type={cur.type} placeholder={cur.placeholder} value={data[cur.id]} onChange={e => setData({...data, [cur.id]: e.target.value})}
-                                        className="w-full bg-transparent border-b-2 border-slate-800 focus:border-[#00f2ff] p-4 text-4xl font-black outline-none transition-all placeholder:text-slate-900 mb-8" />
+                                        className="w-full bg-transparent border-b-2 border-slate-800 focus:border-[#00f2ff] py-4 text-4xl font-black outline-none transition-all placeholder:text-slate-900 mb-10" />
                                     <button onClick={() => step < steps.length - 1 ? setStep(step + 1) : runAnalysis()}
-                                        className="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-xl active:scale-95 transition-all">
-                                        Next Signal
+                                        className="w-full bg-white text-black py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-xs">
+                                        Confirm Signal
                                     </button>
                                 </div>
                             )}
