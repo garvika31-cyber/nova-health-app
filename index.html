@@ -18,6 +18,7 @@
                         'premium-gold': '#D4AF37',
                         'soft-purple': '#F5F2FF',
                         'lavender-accent': '#C7D2FE',
+                        'clay': '#795548',
                     }
                 }
             }
@@ -26,29 +27,28 @@
     <style>
         body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; font-family: 'Instrument Sans', sans-serif; }
         
-        /* BOLD PHYSICAL NESTED LOGO */
         .logo-outer {
             width: 120px; height: 120px;
-            background: #C7D2FE; /* Outline 1: Lavender */
+            background: #C7D2FE;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
             animation: float 4s ease-in-out infinite;
         }
         .logo-mid-1 {
             width: 108px; height: 108px;
-            background: #ffffff; /* Outline 2: White */
+            background: #ffffff;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
         }
         .logo-mid-2 {
             width: 96px; height: 96px;
-            background: #D4AF37; /* Outline 3: Gold */
+            background: #D4AF37;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
         }
         .logo-inner {
             width: 82px; height: 82px;
-            background: #2D1B33; /* Core: Plum */
+            background: #2D1B33;
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
         }
@@ -71,6 +71,7 @@
             const [form, setForm] = useState({ age: '', height: '', weight: '', waist: '', neck: '', hip: '', sleep: '', s: 'male', goal: 'maintain' });
             const [loading, setLoading] = useState(false);
             const [report, setReport] = useState(null);
+            const [error, setError] = useState(false);
 
             const steps = [
                 { id: 's', q: "Are you Male or Female?", sub: "Calculates your body type", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']] },
@@ -87,7 +88,7 @@
             const analyze = () => {
                 setLoading(true);
                 setTimeout(() => {
-                    const { weight, height, age, s, waist, neck, hip, sleep, goal } = form;
+                    const { weight, height, age, s, waist, neck, hip, goal } = form;
                     let bmr = (10*weight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161);
                     let tdee = Math.round(bmr * 1.5);
                     if(goal === "loss") tdee -= 400;
@@ -97,13 +98,26 @@
                         ? (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76)
                         : (163.205 * Math.log10(Number(waist) + Number(hip) - neck) - 97.684 * Math.log10(height) - 78.387);
                     
-                    let targetBmr = Math.round((10*(22.0 * ((height/100)**2))) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161));
+                    let targetWeight = 22.0 * ((height/100)**2);
+                    let targetBmr = Math.round((10*targetWeight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161));
                     setReport({ tdee, bmr: Math.round(bmr), fat: Math.round(fat), bmi, score: Math.max(55, 100 - (Math.abs(bmi-22)*5)), targetBmr, targetBmi: "22.0", targetFat: (s === 'male' ? "15" : "22"), targetTdee: Math.round(targetBmr * 1.4) });
                     setLoading(false);
                 }, 2000);
             };
 
-            const next = () => step < steps.length - 1 ? setStep(step + 1) : analyze();
+            const validateNext = () => {
+                if (!form[steps[step].id]) {
+                    setError(true);
+                    return;
+                }
+                setError(false);
+                step < steps.length - 1 ? setStep(step + 1) : analyze();
+            };
+
+            const goBack = () => {
+                setError(false);
+                if (step > 0) setStep(step - 1);
+            };
 
             const Logo = () => (
                 <div className="flex flex-col items-center mb-16 pt-4">
@@ -137,22 +151,25 @@
                         <p className="text-xs font-black opacity-30 uppercase tracking-[0.2em] mb-1">Health Score</p>
                         <h2 className="text-7xl font-black text-rich-plum italic leading-none">{Math.round(report.score)}</h2>
                     </div>
-                    <div className="grid gap-4 mb-8">
+
+                    <div className="grid gap-6 mb-8">
                         {[
-                            { title: "BMI (Balance)", val: report.bmi, ideal: report.targetBmi, border: "border-rich-plum" },
-                            { title: "BMR (Burn Rate)", val: report.bmr, ideal: report.targetBmr, border: "border-premium-gold" },
-                            { title: "Daily Food Fuel", val: report.tdee, ideal: report.targetTdee, border: "border-rich-plum" },
-                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", border: "border-premium-gold" }
+                            { title: "BMI (Body Balance)", val: report.bmi, ideal: report.targetBmi, border: "border-rich-plum", desc: "This measures your weight against your height. Reaching your ideal target helps your heart and joints stay young." },
+                            { title: "BMR (Burn Rate)", val: report.bmr, ideal: report.targetBmr, border: "border-premium-gold", desc: "The calories you burn just by existing. Increasing this through muscle makes fat loss effortless." },
+                            { title: "Daily Food Fuel", val: report.tdee, ideal: report.targetTdee, border: "border-rich-plum", desc: "This is the 'Gas' your body needs daily. Stick to this number to hit your weight goals perfectly." },
+                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", border: "border-premium-gold", desc: "The percentage of stored fat in your body. Lowering this reveals muscle and boosts your energy." }
                         ].map((item, i) => (
                             <div key={i} className={`bg-white p-6 rounded-[1.5rem] border-l-8 ${item.border} shadow-sm`}>
-                                <div className="flex justify-between items-start mb-1">
+                                <div className="flex justify-between items-start mb-2">
                                     <h3 className="text-rich-plum text-[10px] font-black uppercase tracking-wider">{item.title}</h3>
                                     <span className="target-tag">Ideal: {item.ideal}</span>
                                 </div>
-                                <p className="text-3xl font-black">{item.val}</p>
+                                <p className="text-4xl font-black mb-2">{item.val}</p>
+                                <p className="text-xs text-clay font-bold italic leading-relaxed">{item.desc}</p>
                             </div>
                         ))}
                     </div>
+                    
                     <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Full Guide. Score: ${Math.round(report.score)}`)} 
                         className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl">
                         Unlock Full Plan - ₹199
@@ -169,10 +186,12 @@
                             <p className="text-clay text-[10px] font-extrabold uppercase tracking-widest opacity-60">{steps[step].sub}</p>
                         </div>
                         <div className="bg-white p-8 rounded-[2.5rem] relative shadow-sm">
+                            {error && <p className="text-red-500 text-[10px] font-black uppercase mb-4 text-center">Please enter a value to continue</p>}
+                            
                             {steps[step].options ? (
                                 <div className="grid gap-3">
                                     {steps[step].options.map(o => (
-                                        <button key={o[0]} onClick={() => { setForm({...form, [steps[step].id]: o[0]}); next(); }}
+                                        <button key={o[0]} onClick={() => { setForm({...form, [steps[step].id]: o[0]}); setError(false); step < steps.length - 1 ? setStep(step + 1) : analyze(); }}
                                             className="w-full p-5 text-left rounded-xl bg-soft-purple/30 border-2 border-transparent hover:border-rich-plum transition-all font-black text-xl">
                                             {o[1]}
                                         </button>
@@ -180,12 +199,18 @@
                                 </div>
                             ) : (
                                 <div className="flex flex-col">
-                                    <button onClick={next} className="w-full bg-rich-plum text-white py-5 rounded-xl font-black uppercase tracking-widest shadow-xl mb-4">
+                                    <button onClick={validateNext} className="w-full bg-rich-plum text-white py-5 rounded-xl font-black uppercase tracking-widest shadow-xl mb-4">
                                         Continue →
                                     </button>
-                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => setForm({...form, [steps[step].id]: e.target.value})}
+                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => {setForm({...form, [steps[step].id]: e.target.value}); setError(false);}}
                                         className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-4xl font-black outline-none text-center text-rich-plum" />
                                 </div>
+                            )}
+
+                            {step > 0 && (
+                                <button onClick={goBack} className="mt-8 text-rich-plum opacity-40 font-black uppercase text-[10px] tracking-widest block mx-auto hover:opacity-100">
+                                    ← Go Back
+                                </button>
                             )}
                         </div>
                     </div>
