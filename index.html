@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Health Guide Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@700;800&family=Playfair+Display:ital,wght@1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -18,32 +18,42 @@
                         'premium-gold': '#D4AF37',
                         'soft-purple': '#F5F2FF',
                         'lavender-accent': '#C7D2FE',
-                        'clay': '#795548',
-                    },
-                    fontFamily: { sans: ['Instrument Sans', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+                    }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; }
-        .premium-card { background: #ffffff; border: 1px solid rgba(45, 27, 51, 0.08); box-shadow: 0 20px 40px rgba(45, 27, 51, 0.05); }
+        body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; font-family: 'Instrument Sans', sans-serif; }
         
-        .logo-shape {
-            width: 90px; height: 90px;
-            background: #2D1B33;
+        /* BOLD PHYSICAL NESTED LOGO */
+        .logo-outer {
+            width: 120px; height: 120px;
+            background: #C7D2FE; /* Outline 1: Lavender */
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex; align-items: center; justify-content: center;
             animation: float 4s ease-in-out infinite;
-            position: relative;
-            box-shadow: 
-                0 0 0 2px #ffffff,
-                0 0 0 4px #D4AF37,
-                0 0 0 7px #ffffff,
-                0 0 0 10px #2D1B33;
+        }
+        .logo-mid-1 {
+            width: 108px; height: 108px;
+            background: #ffffff; /* Outline 2: White */
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-mid-2 {
+            width: 96px; height: 96px;
+            background: #D4AF37; /* Outline 3: Gold */
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-inner {
+            width: 82px; height: 82px;
+            background: #2D1B33; /* Core: Plum */
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
         }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         
         .target-tag { background: #F5F2FF; border: 1px solid #D4AF37; color: #D4AF37; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .fade-up { animation: fadeUp 0.4s ease-out forwards; }
@@ -56,248 +66,128 @@
     <script type="text/babel">
         const { useState } = React;
 
-        const NAVY_MALE_A   = 86.010;
-        const NAVY_MALE_B   = 70.041;
-        const NAVY_MALE_C   = 36.76;
-        const NAVY_FEM_A    = 163.205;
-        const NAVY_FEM_B    = 97.684;
-        const NAVY_FEM_C    = 78.387;
-        const IDEAL_BMI     = 22.0;
-        const ACTIVITY_MOD  = 1.5;
-        const WHATSAPP_NUM  = '919999999999'; // ← Replace with your real WhatsApp number
-
-        const calculateMetrics = (form) => {
-            const { weight, height, age, s, waist, neck, hip, goal } = form;
-            const w = parseFloat(weight), h = parseFloat(height),
-                  a = parseFloat(age),   ws = parseFloat(waist),
-                  n = parseFloat(neck),  hp = parseFloat(hip);
-
-            const bmr  = (10 * w) + (6.25 * h) - (5 * a) + (s === 'male' ? 5 : -161);
-            let   tdee = Math.round(bmr * ACTIVITY_MOD);
-            if (goal === 'loss') tdee -= 400;
-            if (goal === 'gain') tdee += 300;
-
-            const bmi = (w / ((h / 100) ** 2)).toFixed(1);
-
-            let fat = 0;
-            if (s === 'male') {
-                const arg = ws - n;
-                fat = arg > 0
-                    ? NAVY_MALE_A * Math.log10(arg) - NAVY_MALE_B * Math.log10(h) + NAVY_MALE_C
-                    : 0;
-            } else {
-                const arg = ws + hp - n;
-                fat = arg > 0
-                    ? NAVY_FEM_A * Math.log10(arg) - NAVY_FEM_B * Math.log10(h) - NAVY_FEM_C
-                    : 0;
-            }
-
-            const targetWeight = IDEAL_BMI * ((h / 100) ** 2);
-            const targetBmr    = Math.round((10 * targetWeight) + (6.25 * h) - (5 * a) + (s === 'male' ? 5 : -161));
-
-            const rawScore = 100 - (Math.abs(parseFloat(bmi) - IDEAL_BMI) * 5);
-            const score    = Math.max(0, Math.min(100, rawScore));
-
-            return {
-                tdee,
-                bmr: Math.round(bmr),
-                fat: Math.round(fat),
-                bmi,
-                score,
-                targetBmr,
-                targetBmi: IDEAL_BMI.toFixed(1),
-                targetFat: s === 'male' ? '15' : '22',
-                targetTdee: Math.round(targetBmr * 1.4),
-            };
-        };
-
-        const isValidNumber = (val, min = 1) => {
-            const n = parseFloat(val);
-            return !isNaN(n) && n > min;
-        };
-
         const App = () => {
-            const [step, setStep]       = useState(0);
-            const [form, setForm]       = useState({ age: '', height: '', weight: '', waist: '', neck: '', hip: '', sleep: '', s: 'male', goal: 'maintain' });
+            const [step, setStep] = useState(0);
+            const [form, setForm] = useState({ age: '', height: '', weight: '', waist: '', neck: '', hip: '', sleep: '', s: 'male', goal: 'maintain' });
             const [loading, setLoading] = useState(false);
-            const [report, setReport]   = useState(null);
-            const [error, setError]     = useState('');
+            const [report, setReport] = useState(null);
 
             const steps = [
-                { id: 's',      q: "Are you Male or Female?",  sub: "Helps us calculate your body type",  options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']], icon: "✨" },
-                { id: 'age',    q: "How old are you?",         sub: "Age affects your energy burn",       icon: "🎂", type: 'number', placeholder: 'Years', min: 1 },
-                { id: 'weight', q: "How much do you weigh?",   sub: "Enter your weight in Kilograms",     icon: "⚖️", type: 'number', placeholder: 'Kg',    min: 1 },
-                { id: 'height', q: "How tall are you?",        sub: "Enter your height in Centimeters",   icon: "📏", type: 'number', placeholder: 'Cm',    min: 1 },
-                { id: 'waist',  q: "Measure your waist",       sub: "Measure around your belly button",   icon: "📏", type: 'number', placeholder: 'Cm',    min: 1 },
-                { id: 'neck',   q: "Measure your neck",        sub: "Measure just below your throat",     icon: "🦒", type: 'number', placeholder: 'Cm',    min: 1 },
-                ...(form.s === 'female' ? [{ id: 'hip', q: "Measure your hips", sub: "Measure the widest part", icon: "📐", type: 'number', placeholder: 'Cm', min: 1 }] : []),
-                { id: 'sleep',  q: "Nightly sleep hours?",     sub: "How much do you sleep on average?",  icon: "🌙", type: 'number', placeholder: 'Hours', min: 0 },
-                { id: 'goal',   q: "What is your main goal?",  sub: "Pick what you want to achieve",      options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']], icon: "🎯" }
+                { id: 's', q: "Are you Male or Female?", sub: "Calculates your body type", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']] },
+                { id: 'age', q: "How old are you?", sub: "Age affects energy burn", type: 'number', placeholder: 'Years' },
+                { id: 'weight', q: "Your weight?", sub: "In Kilograms", type: 'number', placeholder: 'Kg' },
+                { id: 'height', q: "Your height?", sub: "In Centimeters", type: 'number', placeholder: 'Cm' },
+                { id: 'waist', q: "Waist size?", sub: "Around belly button", type: 'number', placeholder: 'Cm' },
+                { id: 'neck', q: "Neck size?", sub: "Below your throat", type: 'number', placeholder: 'Cm' },
+                ...(form.s === 'female' ? [{ id: 'hip', q: "Hip size?", sub: "Widest part of hips", type: 'number', placeholder: 'Cm' }] : []),
+                { id: 'sleep', q: "Nightly sleep?", sub: "Average hours per night", type: 'number', placeholder: 'Hours' },
+                { id: 'goal', q: "Your main goal?", sub: "Pick your objective", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']] }
             ];
 
-            const currentStep = steps[step];
-
-            const currentFieldValid = () => {
-                if (currentStep.options) return true;
-                const val = form[currentStep.id];
-                return isValidNumber(val, currentStep.min ?? 0);
-            };
-
             const analyze = () => {
-                const waist = parseFloat(form.waist), neck = parseFloat(form.neck);
-                if (waist <= neck) {
-                    setError('Waist measurement must be larger than neck. Please go back and correct.');
-                    return;
-                }
-                setError('');
                 setLoading(true);
                 setTimeout(() => {
-                    setReport(calculateMetrics(form));
+                    const { weight, height, age, s, waist, neck, hip, sleep, goal } = form;
+                    let bmr = (10*weight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161);
+                    let tdee = Math.round(bmr * 1.5);
+                    if(goal === "loss") tdee -= 400;
+                    if(goal === "gain") tdee += 300;
+                    let bmi = (weight / ((height/100)**2)).toFixed(1);
+                    let fat = s === "male" 
+                        ? (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76)
+                        : (163.205 * Math.log10(Number(waist) + Number(hip) - neck) - 97.684 * Math.log10(height) - 78.387);
+                    
+                    let targetBmr = Math.round((10*(22.0 * ((height/100)**2))) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161));
+                    setReport({ tdee, bmr: Math.round(bmr), fat: Math.round(fat), bmi, score: Math.max(55, 100 - (Math.abs(bmi-22)*5)), targetBmr, targetBmi: "22.0", targetFat: (s === 'male' ? "15" : "22"), targetTdee: Math.round(targetBmr * 1.4) });
                     setLoading(false);
-                }, 1400);
+                }, 2000);
             };
 
-            const next = () => {
-                if (!currentFieldValid()) {
-                    setError('Please enter a valid value before continuing.');
-                    return;
-                }
-                setError('');
-                step < steps.length - 1 ? setStep(step + 1) : analyze();
-            };
-
-            const back = () => {
-                if (step > 0) { setStep(step - 1); setError(''); }
-            };
-
-            const handleSexChange = (val) => {
-                setForm({ ...form, s: val });
-                setStep(0);
-            };
+            const next = () => step < steps.length - 1 ? setStep(step + 1) : analyze();
 
             const Logo = () => (
-                <div className="flex flex-col items-center mb-16">
-                    <div className="logo-shape">
-                        <div className="flex z-10 font-black text-2xl">
-                            <span className="text-white">H</span>
-                            <span className="text-premium-gold mx-0.5">G</span>
-                            <span className="text-white">P</span>
+                <div className="flex flex-col items-center mb-16 pt-4">
+                    <div className="logo-outer">
+                        <div className="logo-mid-1">
+                            <div className="logo-mid-2">
+                                <div className="logo-inner">
+                                    <div className="flex font-black text-2xl">
+                                        <span className="text-white">H</span>
+                                        <span className="text-premium-gold mx-0.5">G</span>
+                                        <span className="text-white">P</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <h1 className="text-xl font-black tracking-[0.4em] uppercase text-rich-plum mt-10">HEALTH GUIDE PRO</h1>
+                    <h1 className="text-xl font-black tracking-[0.4em] uppercase text-rich-plum mt-8">HEALTH GUIDE PRO</h1>
                 </div>
             );
 
             if (loading) return (
-                <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple text-center">
-                    <div className="w-14 h-14 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-8 font-black uppercase tracking-[0.2em] text-rich-plum italic text-lg">Calculating Results...</p>
+                <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple">
+                    <div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
                 </div>
             );
 
             if (report) return (
                 <div className="max-w-md mx-auto fade-up pb-20">
                     <Logo />
-                    <div className="premium-card rounded-[3rem] p-10 text-center mb-10 border-t-8 border-rich-plum">
-                        <p className="text-xs font-black opacity-30 uppercase tracking-[0.2em] mb-2">Overall Score</p>
-                        <h2 className="text-8xl font-black text-rich-plum italic leading-none">{Math.round(report.score)}</h2>
+                    <div className="bg-white rounded-[2.5rem] p-8 text-center mb-6 border-t-8 border-rich-plum shadow-sm">
+                        <p className="text-xs font-black opacity-30 uppercase tracking-[0.2em] mb-1">Health Score</p>
+                        <h2 className="text-7xl font-black text-rich-plum italic leading-none">{Math.round(report.score)}</h2>
                     </div>
-
-                    <div className="grid gap-6 mb-10">
+                    <div className="grid gap-4 mb-8">
                         {[
-                            { title: "Body Balance (BMI)", val: report.bmi, ideal: report.targetBmi, desc: "Height-to-weight ratio. Reaching ideal makes you feel light.", border: "border-rich-plum" },
-                            { title: "Daily Burn (BMR)", val: report.bmr, ideal: report.targetBmr, desc: "Calories burned naturally. Ideal speed is " + report.targetBmr, border: "border-premium-gold" },
-                            { title: "Food Fuel Limit", val: report.tdee, ideal: report.targetTdee, desc: "Your daily energy budget to reach your goals.", border: "border-rich-plum" },
-                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", desc: "Stored fat ratio. Lowering this boosts heart health.", border: "border-premium-gold" }
+                            { title: "BMI (Balance)", val: report.bmi, ideal: report.targetBmi, border: "border-rich-plum" },
+                            { title: "BMR (Burn Rate)", val: report.bmr, ideal: report.targetBmr, border: "border-premium-gold" },
+                            { title: "Daily Food Fuel", val: report.tdee, ideal: report.targetTdee, border: "border-rich-plum" },
+                            { title: "Body Fat Level", val: report.fat + "%", ideal: report.targetFat + "%", border: "border-premium-gold" }
                         ].map((item, i) => (
-                            <div key={i} className={`premium-card p-6 rounded-[2rem] border-l-8 ${item.border}`}>
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-rich-plum text-xs font-black uppercase tracking-wider">{item.title}</h3>
+                            <div key={i} className={`bg-white p-6 rounded-[1.5rem] border-l-8 ${item.border} shadow-sm`}>
+                                <div className="flex justify-between items-start mb-1">
+                                    <h3 className="text-rich-plum text-[10px] font-black uppercase tracking-wider">{item.title}</h3>
                                     <span className="target-tag">Ideal: {item.ideal}</span>
                                 </div>
-                                <p className="text-4xl font-black mb-2">{item.val}</p>
-                                <p className="text-sm text-clay font-bold italic leading-tight">{item.desc}</p>
+                                <p className="text-3xl font-black">{item.val}</p>
                             </div>
                         ))}
                     </div>
-
-                    <div className="bg-rich-plum text-white p-10 rounded-[3rem] shadow-2xl">
-                        <h3 className="text-2xl font-black mb-6 italic uppercase tracking-tighter text-premium-gold">The Awakening</h3>
-                        <ul className="space-y-4 mb-10 text-sm font-bold opacity-90">
-                            <li>✔️ Fix your metabolism once and for all</li>
-                            <li>✔️ Learn when your body burns fat the fastest</li>
-                            <li>✔️ Stop feeling tired and sluggish</li>
-                        </ul>
-                        <button onClick={() => window.open(`https://wa.me/${WHATSAPP_NUM}?text=Hi, I want my full guide. My Score: ${Math.round(report.score)}`)} 
-                            className="w-full bg-white text-rich-plum py-6 rounded-2xl font-black uppercase tracking-widest text-lg shadow-xl active:scale-95 transition-all">
-                            Unlock Full Plan - ₹199
-                        </button>
-                    </div>
+                    <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Full Guide. Score: ${Math.round(report.score)}`)} 
+                        className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl">
+                        Unlock Full Plan - ₹199
+                    </button>
                 </div>
             );
 
             return (
                 <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
                     <Logo />
-                    <div className="flex-1 flex flex-col justify-start pt-4">
+                    <div className="flex-1 flex flex-col justify-start">
                         <div className="mb-6 text-center px-6">
-                            <h2 className="text-4xl font-black tracking-tighter text-rich-plum uppercase italic leading-[1.1] mb-2">{currentStep.q}</h2>
-                            <p className="text-clay text-xs font-extrabold uppercase tracking-widest opacity-60 leading-relaxed">{currentStep.sub}</p>
+                            <h2 className="text-2xl font-black text-rich-plum uppercase italic leading-tight mb-2">{steps[step].q}</h2>
+                            <p className="text-clay text-[10px] font-extrabold uppercase tracking-widest opacity-60">{steps[step].sub}</p>
                         </div>
-
-                        <div className="premium-card p-8 rounded-[3rem] relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-[6px] bg-soft-purple">
-                                <div className="h-full bg-rich-plum transition-all duration-700" style={{ width: `${((step+1)/steps.length)*100}%` }}></div>
-                            </div>
-
-                            {currentStep.options ? (
-                                <div className="grid gap-4 mt-6">
-                                    {currentStep.options.map(o => (
-                                        <button key={o[0]} onClick={() => {
-                                            if (currentStep.id === 's') {
-                                                handleSexChange(o[0]);
-                                            } else {
-                                                setForm({...form, [currentStep.id]: o[0]});
-                                                setStep(step + 1);
-                                            }
-                                        }}
-                                            className="w-full p-6 text-left rounded-2xl bg-soft-purple/30 border-2 border-transparent hover:border-rich-plum transition-all font-black text-2xl flex justify-between items-center group">
-                                            {o[1]} <span className="opacity-20 group-hover:opacity-100 transition-all text-rich-plum">→</span>
+                        <div className="bg-white p-8 rounded-[2.5rem] relative shadow-sm">
+                            {steps[step].options ? (
+                                <div className="grid gap-3">
+                                    {steps[step].options.map(o => (
+                                        <button key={o[0]} onClick={() => { setForm({...form, [steps[step].id]: o[0]}); next(); }}
+                                            className="w-full p-5 text-left rounded-xl bg-soft-purple/30 border-2 border-transparent hover:border-rich-plum transition-all font-black text-xl">
+                                            {o[1]}
                                         </button>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="mt-4 flex flex-col">
-                                    <button
-                                        onClick={next}
-                                        disabled={!currentFieldValid()}
-                                        className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.1em] text-xl shadow-xl mb-6 transition-all
-                                            ${currentFieldValid()
-                                                ? 'bg-rich-plum text-white active:scale-95'
-                                                : 'bg-soft-purple text-rich-plum opacity-40 cursor-not-allowed'}`}>
+                                <div className="flex flex-col">
+                                    <button onClick={next} className="w-full bg-rich-plum text-white py-5 rounded-xl font-black uppercase tracking-widest shadow-xl mb-4">
                                         Continue →
                                     </button>
-                                    <input
-                                        autoFocus
-                                        type={currentStep.type}
-                                        placeholder={currentStep.placeholder}
-                                        value={form[currentStep.id]}
-                                        onChange={e => { setForm({...form, [currentStep.id]: e.target.value}); setError(''); }}
-                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-6xl font-black outline-none transition-all placeholder:text-gray-200 text-center text-rich-plum"
-                                    />
+                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => setForm({...form, [steps[step].id]: e.target.value})}
+                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-4xl font-black outline-none text-center text-rich-plum" />
                                 </div>
                             )}
-
-                            {error && (
-                                <p className="mt-4 text-center text-xs font-black text-red-500 uppercase tracking-widest">{error}</p>
-                            )}
                         </div>
-
-                        {step > 0 && (
-                            <button onClick={back} className="mt-6 mx-auto text-rich-plum opacity-40 hover:opacity-80 font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2">
-                                ← Back
-                            </button>
-                        )}
                     </div>
                 </div>
             );
