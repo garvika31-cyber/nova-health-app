@@ -27,22 +27,25 @@
         .target-tag { background: #F5F2FF; border: 1px solid #D4AF37; color: #D4AF37; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .fade-up { animation: fadeUp 0.5s ease-out forwards; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        /* Fixed Glossy Footer */
-        .footer-fixed { 
+        
+        /* Sticky Punchline Fix */
+        .sticky-punchline { 
             position: fixed;
             bottom: 0;
             left: 0;
-            width: 100%;
+            right: 0;
+            padding: 30px 0;
+            text-align: center;
+            background: linear-gradient(to top, #F5F2FF 70%, transparent);
+            z-index: 100;
+        }
+        .punchline-text { 
             color: #3E2723; 
             font-weight: 900; 
             text-transform: uppercase; 
             letter-spacing: 0.15em; 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1), -1px -1px 0px rgba(255,255,255,0.8);
-            font-size: 13px;
-            text-align: center;
-            padding: 20px 0;
-            background: linear-gradient(to top, #F5F2FF 80%, transparent);
-            z-index: 50;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 14px;
         }
     </style>
 </head>
@@ -139,46 +142,27 @@
                 </div>
             );
 
+            const Punchline = () => (
+                <div className="sticky-punchline">
+                    <span className="punchline-text">Provoking For Better Health</span>
+                </div>
+            );
+
             if (loading) return (
                 <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple text-center px-10">
                     <div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-4 font-black text-[10px] tracking-widest text-rich-plum uppercase">CALIBRATING BIOLOGY...</p>
-                    <footer className="footer-fixed">Provoking For Better Health</footer>
+                    <Punchline />
                 </div>
             );
 
             if (report) {
                 const cards = [
-                    { 
-                        t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold",
-                        d: report.water < report.targetWater 
-                            ? "Low intake is causing cellular thickening and slowing waste filtration. Increasing to the ideal will flush cortisol and boost energy." 
-                            : "Elite hydration status. You are maintaining optimal plasma volume which keeps the brain sharp and the kidneys stress-free."
-                    },
-                    { 
-                        t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum",
-                        d: report.steps < report.targetSteps 
-                            ? "Inactivity is keeping the GLUT4 protein dormant, forcing the body to store sugar as fat. Movement is required to flip the metabolic switch." 
-                            : "Exceptional movement. You are actively utilizing circulating glucose and forcing your body into adipose-burning mode."
-                    },
-                    { 
-                        t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold",
-                        d: report.bmi > 22 
-                            ? "Excess mass is creating cardiac wall pressure and systemic inflammation. Aligning to 22.0 will unlock maximum longevity." 
-                            : "Your weight-to-height ratio is within the healthy zone, minimizing strain on joints and the vascular system."
-                    },
-                    { 
-                        t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum",
-                        d: report.bmr < report.targetBmr 
-                            ? "Your metabolic 'engine' is undersized for your frame, leading to easy fat storage. Building muscle is key to increasing this burn rate." 
-                            : "High metabolic capacity. Your system is naturally efficient at thermogenesis, favoring calorie burning over long-term storage."
-                    },
-                    { 
-                        t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold",
-                        d: report.fat > report.targetFat 
-                            ? "High adipose levels are driving a cortisol-driven inflammatory cycle. Reducing this will improve focus and hormonal balance." 
-                            : "Excellent lean profile. Your body is maintaining a clean hormonal environment with minimal systemic inflammation."
-                    }
+                    { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: report.water < report.targetWater ? "Low intake is causing cellular thickening." : "Elite hydration status." },
+                    { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum", d: report.steps < report.targetSteps ? "Inactivity is keeping GLUT4 dormant." : "Exceptional movement." },
+                    { t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: report.bmi > 22 ? "Excess mass creating cardiac pressure." : "Weight-to-height ratio is healthy." },
+                    { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: report.bmr < report.targetBmr ? "Metabolic engine is undersized." : "High metabolic capacity." },
+                    { t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: report.fat > report.targetFat ? "High adipose driving cortisol cycle." : "Excellent lean profile." }
                 ];
 
                 return (
@@ -204,9 +188,9 @@
 
             const current = steps[step];
             return (
-                <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up pb-24">
+                <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
                     <LogoGroup />
-                    <div className="flex-1 px-2">
+                    <div className="px-2 pb-32">
                         <div className="mb-6 text-center px-4">
                             <h2 className="text-xl font-black text-rich-plum uppercase italic leading-tight">{current.q}</h2>
                             <p className="text-clay text-[9px] font-extrabold uppercase tracking-widest opacity-60">{current.sub}</p>
@@ -226,7 +210,7 @@
                             {step > 0 && <button onClick={() => setStep(step-1)} className="mt-8 text-rich-plum opacity-40 font-black text-[10px] tracking-widest block mx-auto underline italic">← Back</button>}
                         </div>
                     </div>
-                    <footer className="footer-fixed">Provoking For Better Health</footer>
+                    <Punchline />
                 </div>
             );
         };
