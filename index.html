@@ -84,25 +84,16 @@
                     if (finalData.condition !== 'none') score -= 14;
                     if (finalData.habit === 'regular') score -= 10;
 
-                    // Goal-based summary generation
-                    let goalSummary = "";
-                    const riskFactor = finalData.condition !== 'none' ? "High Clinical Sensitivity" : "Standard Metabolic Profile";
-                    if(finalData.goal === 'loss') {
-                        goalSummary = `Targeting Fat Loss for a ${finalData.age}-year-old ${finalData.s} requires aggressive hormonal resetting. Your data suggests that ${finalData.condition === 'none' ? 'metabolic pathways are clear' : 'existing conditions require a low-glycemic approach'} to unlock stubborn adipose stores. To reach the 22.0 BMI ideal, focus on Thermic Effect of Food (TEF) and consistent Zone 2 movement to keep cortisol low while maximizing caloric deficit.`;
-                    } else if (finalData.goal === 'gain') {
-                        goalSummary = `Hypertrophy and Muscle Gain strategy for your profile hinges on protein synthesis optimization. Given your current ${finalData.exercise} activity level, you must increase nitrogen balance. Scientific algorithms suggest a surplus centered around ${targetBmr + 300} calories, ensuring adequate hydration to manage the metabolic load of muscle repair, especially considering your ${finalData.habit} habit profile.`;
-                    } else {
-                        goalSummary = `Body Maintenance and longevity focus for your ${finalData.s} biology requires stabilizing your current ${report?.score || 'biological'} score. The synergy between your ${finalData.water} glasses of water and ${finalData.steps} steps determines your systemic oxidative stress. Maintaining a steady 22.0 BMI will involve balancing nutrient density with consistent activity to prevent age-related metabolic slowdown.`;
-                    }
+                    let goalSummary = `Based on your profile as a ${A}-year-old ${finalData.s}, reaching your goal of ${finalData.goal} requires a ${finalData.condition === 'none' ? 'standardized' : 'specialized'} metabolic reset. Current science suggests focusing on hormone optimization and nutrient timing to move your BMI toward the 22.0 target while managing oxidative stress from ${finalData.habit === 'none' ? 'minimal' : 'habitual'} lifestyle factors.`;
 
                     setReport({ 
                         score: Math.max(35, Math.round(score)), 
                         bmi, bmr: Math.round(bmr), fat: Math.round(fat), 
-                        steps: finalData.steps, water: currentWater, targetWater, 
+                        steps: Number(finalData.steps), water: currentWater, targetWater, 
                         targetSteps: finalData.goal === 'loss' ? 12000 : 8500, 
                         targetBmr, targetBmi: "22.0", targetFat,
                         summary: goalSummary,
-                        riskFactor: riskFactor
+                        riskFactor: finalData.condition !== 'none' ? "High Clinical Sensitivity" : "Standard Metabolic Profile"
                     });
                     setLoading(false);
                 }, 2000);
@@ -148,7 +139,6 @@
                         <h2 className="text-7xl font-black text-rich-plum italic">{report.score}</h2>
                     </div>
 
-                    {/* NEW BIOLOGICAL STRATEGY SUMMARY BOX */}
                     <div className="bg-rich-plum text-white p-6 rounded-[2rem] mb-6 shadow-xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 opacity-10 text-5xl italic font-black">AI</div>
                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-3 text-premium-gold">Biological Strategy Summary</h3>
@@ -156,18 +146,41 @@
                             <span className="text-[8px] bg-white/10 px-2 py-1 rounded border border-white/20 font-bold uppercase">{report.riskFactor}</span>
                             <span className="text-[8px] bg-premium-gold/20 px-2 py-1 rounded border border-premium-gold/30 font-bold uppercase text-premium-gold">{form.goal} Focus</span>
                         </div>
-                        <p className="text-[12px] leading-relaxed font-bold italic text-soft-purple/90">
-                            {report.summary}
-                        </p>
+                        <p className="text-[12px] leading-relaxed font-bold italic text-soft-purple/90">{report.summary}</p>
                     </div>
 
                     <div className="grid gap-4 mb-8">
                         {[
-                            { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: `Your current intake is ${report.water} glasses while your biological ideal is ${report.targetWater}. This gap causes cellular dehydration which forces your body to hold onto metabolic waste, leading to fatigue.` },
-                            { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "Steps", c: "border-rich-plum", d: `You are recording ${report.steps} steps against a target of ${report.targetSteps}. This lack of movement keeps insulin sensitivity low, promoting fat storage around vital organs.` },
-                            { t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: `Your BMI is ${report.bmi} compared to the ideal 22.0. This indicates your weight is putting mechanical stress on your cardiovascular system and joints.` },
-                            { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: `Your resting burn is ${report.bmr} calories vs the goal of ${report.targetBmr}. A lower BMR means your 'internal engine' is underperforming, making weight gain much easier.` },
-                            { t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: `Your fat is ${report.fat}% while the benchmark is ${report.targetFat}%. Excess adipose tissue releases inflammatory markers that disrupt hormonal balance and recovery.` }
+                            { 
+                                t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", 
+                                d: report.water >= report.targetWater 
+                                ? `Your intake of ${report.water} glasses effectively meets the ideal ${report.targetWater}. This keeps your blood viscosity low and ensures that your metabolic filtration system is operating at peak capacity for toxin removal.` 
+                                : `Your current intake is ${report.water} glasses against the ideal ${report.targetWater}. This shortage creates cellular thickening, which triggers afternoon fatigue and slows down the transport of nutrients to your muscles.` 
+                            },
+                            { 
+                                t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "Steps", c: "border-rich-plum", 
+                                d: report.steps >= report.targetSteps 
+                                ? `With ${report.steps} steps, you are hitting your movement target of ${report.targetSteps}. This consistency keeps your insulin sensitivity high, ensuring that calories are burned as fuel rather than stored as visceral fat.` 
+                                : `You are recording ${report.steps} steps while the target is ${report.targetSteps}. This lack of daily movement causes sugar-processing proteins to remain dormant, leading to steady adipose accumulation around vital organs.` 
+                            },
+                            { 
+                                t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", 
+                                d: Number(report.bmi) <= 23 
+                                ? `Your BMI of ${report.bmi} is excellently aligned with the ideal 22.0. This optimized frame-to-mass ratio minimizes mechanical stress on your heart and joints, significantly lowering systemic inflammation.` 
+                                : `Your BMI of ${report.bmi} is significantly higher than the ideal 22.0. This excess mass indicates that your cardiovascular system and joints are under chronic mechanical pressure, which will accelerate biological aging.` 
+                            },
+                            { 
+                                t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", 
+                                d: report.bmr >= report.targetBmr 
+                                ? `Your resting burn is ${report.bmr} cal, which meets the ${report.targetBmr} benchmark. This 'high-capacity' engine allows your body to efficiently process fuel even during sleep, making weight management much easier.` 
+                                : `Your resting burn is ${report.bmr} cal vs the ideal ${report.targetBmr}. This suggests your metabolic engine is undersized, meaning your body is in a conservation state and prone to storing fat even on a normal diet.` 
+                            },
+                            { 
+                                t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", 
+                                d: Math.round(report.fat) <= report.targetFat 
+                                ? `Your fat percentage of ${report.fat}% is at or below the lean benchmark of ${report.targetFat}%. This low adipose profile ensures your hormones remain balanced and your body stays in a repair-dominant state.` 
+                                : `Your body fat is ${report.fat}% while the benchmark is ${report.targetFat}%. Excess fat tissue acts as a hormone-disrupting organ, releasing inflammatory cytokines that negatively impact your recovery and sleep.` 
+                            }
                         ].map((item, idx) => (
                             <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
                                 <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
