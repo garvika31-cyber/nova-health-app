@@ -77,7 +77,6 @@
                         ? (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76)
                         : (163.205 * Math.log10(Number(waist) + Number(hip) - neck) - 97.684 * Math.log10(height) - 78.387);
                     
-                    // Step Target Logic
                     let targetSteps = 8000;
                     if (goal === 'loss') targetSteps = 12000;
                     if (goal === 'gain') targetSteps = 7000;
@@ -120,10 +119,13 @@
 
                     <div className="grid gap-6 mb-8">
                         {[
-                            { title: "Daily Step Activity", val: report.steps, ideal: report.targetSteps, border: "border-premium-gold", desc: `Current movement vs. target for ${form.goal}. Scientific studies show that reaching ${report.targetSteps} steps daily optimizes NEAT (Non-Exercise Activity Thermogenesis), which is the most efficient way to maintain a caloric deficit or build lean mass without overtaxing your recovery.` },
-                            { title: "BMI (Body Balance)", val: report.bmi, ideal: report.targetBmi, border: "border-rich-plum", desc: "This index indicates your body density. Reaching 22.0 is the global medical gold standard for longevity and lowest risk of chronic metabolic issues." },
-                            { title: "BMR (Burn Rate)", val: report.bmr, ideal: report.targetBmr, border: "border-premium-gold", desc: "Your metabolic engine's idle speed. A higher BMR means you burn fat even while sleeping. We target your ideal BMR to ensure lifelong leanness." },
-                            { title: "Body Fat Level", val: Math.round(report.fat) + "%", ideal: report.targetFat + "%", border: "border-rich-plum", desc: "The actual storage of energy. Lowering this ratio directly improves hormonal health, skin quality, and cognitive clarity." }
+                            { title: "Daily Step Activity", val: report.steps, ideal: report.targetSteps, border: "border-premium-gold", desc: `Current movement vs. target for ${form.goal}. Reaching ${report.targetSteps} steps daily is scientifically proven to activate Non-Exercise Activity Thermogenesis (NEAT), which creates a biological environment where your body prioritizes fat oxidation over muscle breakdown.` },
+                            
+                            { title: "BMI (Body Balance)", val: report.bmi, ideal: report.targetBmi, border: "border-rich-plum", desc: `Medical studies suggest that a BMI of 22.0 is the biological 'sweet spot' for cardiovascular efficiency. By aligning your mass to this ratio, you reduce systemic inflammation and ensure your skeletal structure carries the optimal load for joint longevity.` },
+                            
+                            { title: "BMR (Metabolic Engine)", val: report.bmr, ideal: report.targetBmr, border: "border-premium-gold", desc: `This represents your metabolic idle speed. A target BMR of ${report.targetBmr} signifies a highly efficient endocrine system where your basal energy requirements are met primarily through deep tissue repair and hormonal synthesis, making weight management automatic.` },
+                            
+                            { title: "Body Fat Level", val: Math.round(report.fat) + "%", ideal: report.targetFat + "%", border: "border-rich-plum", desc: `Your fat percentage is a direct indicator of metabolic flexibility. Reaching the ${report.targetFat}% target forces your body to transition from glucose-dependency to fatty-acid utilization, resulting in stable energy levels and significantly sharper cognitive focus throughout the day.` }
                         ].map((item, i) => (
                             <div key={i} className={`bg-white p-6 rounded-[1.5rem] border-l-8 ${item.border} shadow-sm`}>
                                 <div className="flex justify-between items-start mb-2">
