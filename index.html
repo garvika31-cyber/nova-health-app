@@ -28,16 +28,11 @@
         .fade-up { animation: fadeUp 0.5s ease-out forwards; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Sticky Punchline Fix */
-        .sticky-punchline { 
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 30px 0;
+        /* Direct Placement Style */
+        .punchline-direct { 
+            margin-top: 32px; /* Precise 2-line gap */
             text-align: center;
-            background: linear-gradient(to top, #F5F2FF 70%, transparent);
-            z-index: 100;
+            width: 100%;
         }
         .punchline-text { 
             color: #3E2723; 
@@ -88,38 +83,20 @@
                     const neck = Number(finalData.neck) || 0;
                     const hip = Number(finalData.hip) || 0;
                     const currentWater = Number(finalData.water) || 0;
-
                     const bmi = (W / ((H / 100) ** 2)).toFixed(1);
                     const bmr = (10 * W) + (6.25 * H) - (5 * A) + (finalData.s === 'male' ? 5 : -161);
-
-                    let fat = 0;
-                    if (finalData.s === 'male') {
-                        const diff = Math.max(waist - neck, 0.1);
-                        fat = 86.010 * Math.log10(diff) - 70.041 * Math.log10(H) + 36.76;
-                    } else {
-                        const diff = Math.max((waist + hip) - neck, 0.1);
-                        fat = 163.205 * Math.log10(diff) - 97.684 * Math.log10(H) - 78.387;
-                    }
+                    let fat = finalData.s === 'male' 
+                        ? (86.010 * Math.log10(Math.max(waist - neck, 0.1)) - 70.041 * Math.log10(H) + 36.76)
+                        : (163.205 * Math.log10(Math.max((waist + hip) - neck, 0.1)) - 97.684 * Math.log10(H) - 78.387);
                     fat = Math.min(Math.max(fat, 5), 60);
-
                     let targetWater = Math.max(12, Math.ceil((W * 0.04) / 0.25));
-                    if (currentWater >= targetWater) targetWater = currentWater + 1;
-
                     const idealW = 22 * ((H / 100) ** 2);
                     const targetBmr = Math.round((10 * idealW) + (6.25 * H) - (5 * A) + (finalData.s === 'male' ? 5 : -161));
                     const targetFat = (finalData.s === 'male' ? 15 : 22);
-
                     let score = 100 - (Math.abs(bmi - 22) * 4) - (Math.abs(fat - targetFat) * 0.8);
                     if (finalData.condition !== 'none') score -= 14;
                     if (finalData.habit === 'regular') score -= 10;
-
-                    setReport({
-                        score: Math.max(35, Math.round(score)),
-                        bmi, bmr: Math.round(bmr), fat: Math.round(fat),
-                        steps: finalData.steps, water: currentWater,
-                        targetWater, targetSteps: finalData.goal === 'loss' ? 12000 : 8500,
-                        targetBmr, targetBmi: "22.0", targetFat
-                    });
+                    setReport({ score: Math.max(35, Math.round(score)), bmi, bmr: Math.round(bmr), fat: Math.round(fat), steps: finalData.steps, water: currentWater, targetWater, targetSteps: finalData.goal === 'loss' ? 12000 : 8500, targetBmr, targetBmi: "22.0", targetFat });
                     setLoading(false);
                 }, 2000);
             };
@@ -143,7 +120,7 @@
             );
 
             const Punchline = () => (
-                <div className="sticky-punchline">
+                <div className="punchline-direct">
                     <span className="punchline-text">Provoking For Better Health</span>
                 </div>
             );
@@ -156,41 +133,37 @@
                 </div>
             );
 
-            if (report) {
-                const cards = [
-                    { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: report.water < report.targetWater ? "Low intake is causing cellular thickening." : "Elite hydration status." },
-                    { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum", d: report.steps < report.targetSteps ? "Inactivity is keeping GLUT4 dormant." : "Exceptional movement." },
-                    { t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: report.bmi > 22 ? "Excess mass creating cardiac pressure." : "Weight-to-height ratio is healthy." },
-                    { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: report.bmr < report.targetBmr ? "Metabolic engine is undersized." : "High metabolic capacity." },
-                    { t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: report.fat > report.targetFat ? "High adipose driving cortisol cycle." : "Excellent lean profile." }
-                ];
-
-                return (
-                    <div className="max-w-md mx-auto fade-up pb-20">
-                        <LogoGroup />
-                        <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-8 border-rich-plum">
-                            <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
-                            <h2 className="text-7xl font-black text-rich-plum italic">{report.score}</h2>
-                        </div>
-                        <div className="grid gap-4 mb-8">
-                            {cards.map((item, idx) => (
-                                <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
-                                    <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
-                                    <p className="text-3xl font-black mb-1">{item.v} {item.u}</p>
-                                    <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.d}</p>
-                                </div>
-                            ))}
-                        </div>
-                        <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs">Unlock Full Plan - ₹111</button>
+            if (report) return (
+                <div className="max-w-md mx-auto fade-up pb-20">
+                    <LogoGroup />
+                    <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-8 border-rich-plum">
+                        <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
+                        <h2 className="text-7xl font-black text-rich-plum italic">{report.score}</h2>
                     </div>
-                );
-            }
+                    <div className="grid gap-4 mb-8">
+                        {[
+                            { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: report.water < report.targetWater ? "Low intake causing cellular thickening." : "Elite hydration status." },
+                            { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum", d: report.steps < report.targetSteps ? "Inactivity keeps GLUT4 dormant." : "Exceptional movement." },
+                            { t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: report.bmi > 22 ? "Excess mass creating cardiac pressure." : "Healthy weight ratio." },
+                            { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: report.bmr < report.targetBmr ? "Metabolic engine is undersized." : "High metabolic capacity." },
+                            { t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: report.fat > report.targetFat ? "High adipose driving cortisol cycle." : "Excellent lean profile." }
+                        ].map((item, idx) => (
+                            <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
+                                <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
+                                <p className="text-3xl font-black mb-1">{item.v} {item.u}</p>
+                                <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.d}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs">Unlock Full Plan - ₹111</button>
+                </div>
+            );
 
             const current = steps[step];
             return (
                 <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
                     <LogoGroup />
-                    <div className="px-2 pb-32">
+                    <div className="px-2">
                         <div className="mb-6 text-center px-4">
                             <h2 className="text-xl font-black text-rich-plum uppercase italic leading-tight">{current.q}</h2>
                             <p className="text-clay text-[9px] font-extrabold uppercase tracking-widest opacity-60">{current.sub}</p>
@@ -209,8 +182,9 @@
                             )}
                             {step > 0 && <button onClick={() => setStep(step-1)} className="mt-8 text-rich-plum opacity-40 font-black text-[10px] tracking-widest block mx-auto underline italic">← Back</button>}
                         </div>
+                        {/* PUNCHLINE - REPLACED 2 LINES BELOW THE CARD */}
+                        <Punchline />
                     </div>
-                    <Punchline />
                 </div>
             );
         };
