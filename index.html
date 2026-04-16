@@ -13,7 +13,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { 'rich-plum': '#2D1B33', 'premium-gold': '#D4AF37', 'soft-purple': '#F5F2FF', 'clay': '#795548' }
+                    colors: { 'rich-plum': '#2D1B33', 'premium-gold': '#D4AF37', 'soft-purple': '#F5F2FF', 'clay': '#795548', 'glossy-brown': '#5D4037' }
                 }
             }
         }
@@ -22,12 +22,13 @@
         body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; font-family: 'Instrument Sans', sans-serif; overflow-x: hidden; }
         .logo-outer { width: 90px; height: 90px; background: #C7D2FE; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
         .logo-inner { width: 65px; height: 65px; background: #2D1B33; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 20px; }
-        /* SPEED UPDATED: Changed from 4s to 1.5s for faster movement */
         .logo-group { animation: float 1.5s ease-in-out infinite; display: flex; align-items: center; justify-content: center; gap: 10px; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
         .target-tag { background: #F5F2FF; border: 1px solid #D4AF37; color: #D4AF37; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .fade-up { animation: fadeUp 0.5s ease-out forwards; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        /* Punchline Glossy Effect */
+        .punchline { color: #5D4037; font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.5); }
     </style>
 </head>
 <body class="p-4">
@@ -120,6 +121,7 @@
                         <span className="text-4xl text-rich-plum animate-pulse opacity-80">✨</span>
                     </div>
                     <h1 className="text-sm font-black tracking-[0.4em] text-rich-plum mt-5">HEALTH GUIDE PRO</h1>
+                    <p className="punchline text-[11px] mt-2">Provoking For Better Health</p>
                 </div>
             );
 
