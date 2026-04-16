@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Health Guide Pro | Precision Diagnostic</title>
+    <title>Health Guide Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -13,12 +13,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        'rich-plum': '#2D1B33',
-                        'premium-gold': '#D4AF37',
-                        'soft-purple': '#F5F2FF',
-                        'clay': '#795548',
-                    }
+                    colors: { 'rich-plum': '#2D1B33', 'premium-gold': '#D4AF37', 'soft-purple': '#F5F2FF', 'clay': '#795548' }
                 }
             }
         }
@@ -35,7 +30,7 @@
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="p-4">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -50,19 +45,19 @@
 
             const steps = [
                 { id: 's', q: "Biological Gender?", sub: "For hormonal & metabolic logic", options: [['male', '👨‍💼 Male'], ['female', '👩‍💼 Female']] },
-                { id: 'age', q: "How old are you?", sub: "Age affects metabolic cellular age", type: 'number', placeholder: 'Years' },
+                { id: 'age', q: "Your Age?", sub: "Affects metabolic cellular speed", type: 'number', placeholder: 'Years' },
                 { id: 'weight', q: "Current weight?", sub: "In Kilograms", type: 'number', placeholder: 'Kg' },
-                { id: 'height', q: "Current height?", sub: "In Centimeters", type: 'number', placeholder: 'Cm' },
-                { id: 'waist', q: "Waist size?", sub: "Measure around belly button (Cm)", type: 'number', placeholder: 'Cm' },
-                { id: 'neck', q: "Neck size?", sub: "Measure below throat (Cm)", type: 'number', placeholder: 'Cm' },
+                { id: 'height', q: "Your height?", sub: "In Centimeters", type: 'number', placeholder: 'Cm' },
+                { id: 'waist', q: "Waist size?", sub: "Around belly button (Cm)", type: 'number', placeholder: 'Cm' },
+                { id: 'neck', q: "Neck size?", sub: "Below throat (Cm)", type: 'number', placeholder: 'Cm' },
                 ...(form.s === 'female' ? [{ id: 'hip', q: "Hip size?", sub: "Widest part (Cm)", type: 'number', placeholder: 'Cm' }] : []),
-                { id: 'condition', q: "Medical History?", sub: "Screens for metabolic risks", options: [['none', 'Perfectly Healthy ✨'], ['bp', 'Blood Pressure 🩸'], ['diabetes', 'Diabetes/Sugar 🍬'], ['pcos', 'PCOS/PCOD 🧬']] },
-                { id: 'habit', q: "Lifestyle Habits?", sub: "Weekly toxin frequency", options: [['none', 'Clean Lifestyle 🍃'], ['occasional', 'Occasional Smoking/Alcohol 🥂'], ['regular', 'Regular Smoking/Alcohol 🚬']] },
+                { id: 'condition', q: "Medical History?", sub: "Screens for metabolic risks", options: [['none', 'Healthy ✨'], ['bp', 'Blood Pressure 🩸'], ['diabetes', 'Diabetes 🍬'], ['pcos', 'PCOS/PCOD 🧬']] },
+                { id: 'habit', q: "Lifestyle Habits?", sub: "Weekly toxin frequency", options: [['none', 'Clean 🍃'], ['occasional', 'Occasional 🥂'], ['regular', 'Regular 🚬']] },
                 { id: 'exercise', q: "Physical Activity?", sub: "Workouts per week", options: [['sedentary', '0-1 Days'], ['light', '2-3 Days'], ['active', '4-5 Days'], ['athlete', 'Daily Active']] },
-                { id: 'steps', q: "Average Daily Steps?", sub: "Current movement density", type: 'number', placeholder: 'Steps' },
-                { id: 'water', q: "Daily Water Intake?", sub: "Glasses per day (250ml ea)", type: 'number', placeholder: 'Glasses' },
-                { id: 'sleep', q: "Average Sleep?", sub: "Hours per night", type: 'number', placeholder: 'Hours' },
-                { id: 'goal', q: "Your Primary Objective?", sub: "Defines scientific targets", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Stay Healthy ✨'], ['gain', 'Build Muscle 💪']] }
+                { id: 'steps', q: "Average Daily Steps?", sub: "Current movement", type: 'number', placeholder: 'Steps' },
+                { id: 'water', q: "Daily Water?", sub: "Glasses (250ml)", type: 'number', placeholder: 'Glasses' },
+                { id: 'sleep', q: "Nightly Sleep?", sub: "Hours", type: 'number', placeholder: 'Hours' },
+                { id: 'goal', q: "Primary Objective?", sub: "Defines targets", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Healthy ✨'], ['gain', 'Build Muscle 💪']] }
             ];
 
             const analyze = () => {
@@ -70,110 +65,96 @@
                 setTimeout(() => {
                     const { weight, height, age, s, waist, neck, hip, steps, water, exercise, goal, condition, habit } = form;
                     
+                    // 1. Current Stats
                     let bmr = (10*weight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161);
-                    const activityMult = { sedentary: 1.2, light: 1.375, active: 1.55, athlete: 1.725 };
-                    let tdee = Math.round(bmr * activityMult[exercise]);
-                    
-                    // FIXED WATER ALGORITHM
-                    let waterBase = (weight * 0.035) / 0.25; 
-                    if(habit === 'regular') waterBase += 2.5; 
-                    let targetWater = Math.ceil(waterBase);
-                    
                     let bmi = (weight / ((height/100)**2)).toFixed(1);
                     let fat = s === "male" 
                         ? (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76)
                         : (163.205 * Math.log10(Number(waist) + Number(hip) - neck) - 97.684 * Math.log10(height) - 78.387);
                     
-                    let baseScore = 100 - (Math.abs(bmi-22)*7);
-                    if(condition !== 'none') baseScore -= 14;
-                    if(habit !== 'none') baseScore -= 9;
+                    // 2. SMART IDEALS
+                    // Water: Floor of 10 for adults, or weight-based.
+                    let targetWater = Math.max(10, Math.ceil((weight * 0.04) / 0.25));
                     
+                    // BMR Ideal: Represents the "High Performance Engine" (Target BMI 22)
+                    let idealWeight = 22 * ((height/100)**2);
+                    let targetBmr = Math.round((10*idealWeight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161));
+
+                    // 3. SCORE LOGIC
+                    let targetFat = (s === 'male' ? 15 : 22);
+                    let score = 100 - (Math.abs(bmi-22)*6) - (Math.abs(fat-targetFat)*0.6);
+                    if(condition !== 'none') score -= 15;
+                    if(habit === 'regular') score -= 10;
+
                     setReport({ 
-                        tdee, bmr: Math.round(bmr), fat: Math.round(fat), bmi, steps, water, 
-                        targetWater, 
-                        targetSteps: goal === 'loss' ? 12000 : 8000,
-                        score: Math.max(38, baseScore), 
-                        targetBmr: Math.round((10*(22 * ((height/100)**2))) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161)),
-                        targetBmi: "22.0", targetFat: (s === 'male' ? "15" : "22")
+                        bmr: Math.round(bmr), fat: Math.round(fat), bmi, steps, water, 
+                        targetWater, targetSteps: goal === 'loss' ? 12000 : 8500,
+                        score: Math.max(30, score), targetBmr, targetBmi: "22.0", targetFat
                     });
                     setLoading(false);
                 }, 2000);
             };
 
-            const validateNext = () => {
-                if (!form[steps[step].id]) { setError(true); return; }
-                setError(false);
-                step < steps.length - 1 ? setStep(step + 1) : analyze();
-            };
-
             const Logo = () => (
-                <div className="flex flex-col items-center mb-12 pt-4">
+                <div className="flex flex-col items-center mb-8 pt-4">
                     <div className="logo-outer"><div className="logo-mid-1"><div className="logo-mid-2"><div className="logo-inner">
                         <div className="flex font-black text-2xl text-white">H<span className="text-premium-gold mx-0.5">G</span>P</div>
                     </div></div></div></div>
-                    <h1 className="text-lg font-black tracking-[0.4em] uppercase text-rich-plum mt-6">HEALTH GUIDE PRO</h1>
+                    <h1 className="text-lg font-black tracking-[0.4em] text-rich-plum mt-4">HEALTH GUIDE PRO</h1>
                 </div>
             );
 
-            if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple"><div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div><p className="mt-4 font-black uppercase text-[10px] tracking-widest text-rich-plum animate-pulse text-center px-10">Cross-Referencing Biological Data...</p></div>;
+            if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple"><div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div><p className="mt-4 font-black text-[10px] tracking-widest text-rich-plum">CALIBRATING BIOLOGY...</p></div>;
 
             if (report) return (
                 <div className="max-w-md mx-auto fade-up pb-20">
                     <Logo />
-                    <div className="bg-white rounded-[2.5rem] p-8 text-center mb-6 border-t-8 border-rich-plum shadow-sm">
-                        <p className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-1">Biological Integrity Score</p>
-                        <h2 className="text-7xl font-black text-rich-plum italic leading-none">{Math.round(report.score)}</h2>
+                    <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-4 border-rich-plum">
+                        <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
+                        <h2 className="text-7xl font-black text-rich-plum italic">{Math.round(report.score)}</h2>
                     </div>
 
-                    <div className="grid gap-6 mb-8 text-left">
+                    <div className="grid gap-4 mb-8">
                         {[
-                            { title: "Metabolic Hydration", val: report.water + " Gl", ideal: report.targetWater + " Gl", border: "border-premium-gold", desc: `Clinical standards suggest your specific mass requires ${report.targetWater} glasses to maintain cellular plasma volume. Reaching this target is non-negotiable for ensuring your kidneys can filter urea and metabolic toxins without down-regulating your fat-burning enzymes.` },
-                            { title: "Step Density Index", val: report.steps, ideal: report.targetSteps, border: "border-rich-plum", desc: `Your current step count dictates your GLUT4 protein activation. Reaching ${report.targetSteps} daily steps creates a non-insulin dependent pathway for glucose disposal, which is the most efficient way to achieve metabolic flexibility and fat oxidation.` },
-                            { title: "BMI (Physiological Balance)", val: report.bmi, ideal: report.targetBmi, border: "border-premium-gold", desc: `Medical data identifies a BMI of 22.0 as the 'longevity sweet spot.' Aligning your density to this ratio minimizes cardiac strain and systemic inflammation, especially critical given your recorded lifestyle factors.` },
-                            { title: "BMR (Idle Energy Rate)", val: report.bmr, ideal: report.targetBmr, border: "border-rich-plum", desc: `This is your biological engine's resting speed. A target of ${report.targetBmr} calories signifies a hormonal system operating at peak efficiency, prioritizing deep tissue regeneration and endocrine health over adipose storage.` },
-                            { title: "Body Fat (Adipose %)", val: Math.round(report.fat) + "%", ideal: report.targetFat + "%", border: "border-premium-gold", desc: `Fat percentage is a primary marker of metabolic health. Lowering your ratio to ${report.targetFat}% stabilizes cortisol and lepton production, leading to sustained energy levels and a significant reduction in cognitive fog.` }
-                        ].map((item, i) => (
-                            <div key={i} className={`bg-white p-6 rounded-[1.5rem] border-l-8 ${item.border} shadow-sm`}>
-                                <div className="flex justify-between items-start mb-2"><h3 className="text-rich-plum text-[10px] font-black uppercase tracking-wider">{item.title}</h3><span className="target-tag">Ideal: {item.ideal}</span></div>
-                                <p className="text-3xl font-black mb-2">{item.val}</p>
-                                <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.desc}</p>
+                            { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: `Your system requires ${report.targetWater} glasses to maintain plasma density. Water is the primary solvent for cellular repair; reaching this target is the only way to ensure toxins are flushed without triggering survival-mode hunger.` },
+                            { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum", d: `Reaching ${report.targetSteps} steps activates non-insulin dependent glucose disposal (GLUT4). This is the 'secret' to stabilizing blood sugar and forcing the body to prioritize burning stored adipose fat.` },
+                            { t: "BMI (Physiological Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: `A BMI of 22.0 represents the highest global longevity score. Aligning to this target reduces systemic inflammation and protects the cardiac wall from unnecessary volumetric pressure.` },
+                            { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: `This represents your resting metabolic speed. A target of ${report.targetBmr} calories indicates an endocrine system functioning at peak repair capacity, favoring thermogenesis over calorie storage.` },
+                            { t: "Body Fat Level", v: Math.round(report.fat) + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: `Fat is a hormone-secreting organ. Reducing your levels to ${report.targetFat}% stops the inflammatory cortisol loop, leading to 'Metabolic Flexibility' and sustained cognitive focus.` }
+                        ].map((item, idx) => (
+                            <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
+                                <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
+                                <p className="text-3xl font-black mb-1">{item.v} {item.u}</p>
+                                <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.d}</p>
                             </div>
                         ))}
                     </div>
                     
-                    <div className="bg-rich-plum p-8 rounded-[2.5rem] shadow-2xl text-center">
-                        <p className="text-premium-gold text-[10px] font-black uppercase tracking-widest mb-4 italic">Join 500+ Seekers on the Awakening Path</p>
-                        <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=I've analyzed my score (${Math.round(report.score)}). Send the Awakening Plan.`)} 
-                            className="w-full bg-white text-rich-plum py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">Unlock My Full Plan - ₹199</button>
-                    </div>
+                    <button onClick={() => window.open(`https://wa.me/91XXXXXXXXXX?text=Full Plan for Score ${Math.round(report.score)}`)} className="w-full bg-rich-plum text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl">Unlock Full Awakening Plan - ₹199</button>
                 </div>
             );
 
             return (
                 <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
                     <Logo />
-                    <div className="flex-1 flex flex-col justify-start">
-                        <div className="mb-6 text-center px-6">
-                            <h2 className="text-xl font-black text-rich-plum uppercase italic leading-tight mb-2">{steps[step].q}</h2>
+                    <div className="flex-1 px-2">
+                        <div className="mb-6 text-center">
+                            <h2 className="text-xl font-black text-rich-plum uppercase italic leading-tight">{steps[step].q}</h2>
                             <p className="text-clay text-[9px] font-extrabold uppercase tracking-widest opacity-60">{steps[step].sub}</p>
                         </div>
-                        <div className="bg-white p-8 rounded-[2.5rem] relative shadow-sm">
-                            {error && <p className="text-red-500 text-[10px] font-black uppercase mb-4 text-center">Mandatory Field Required</p>}
+                        <div className="bg-white p-8 rounded-[2rem] shadow-sm relative">
+                            {error && <p className="text-red-500 text-[10px] font-black text-center mb-2">Analysis requires this input</p>}
                             {steps[step].options ? (
-                                <div className="grid gap-3">
-                                    {steps[step].options.map(o => (
-                                        <button key={o[0]} onClick={() => { setForm({...form, [steps[step].id]: o[0]}); setError(false); step < steps.length - 1 ? setStep(step + 1) : analyze(); }}
-                                            className="w-full p-5 text-left rounded-xl bg-soft-purple/30 border-2 border-transparent hover:border-rich-plum transition-all font-black text-lg">{o[1]}</button>
-                                    ))}
-                                </div>
+                                <div className="grid gap-3">{steps[step].options.map(o => (
+                                    <button key={o[0]} onClick={() => { setForm({...form, [steps[step].id]: o[0]}); setStep(step + 1); }} className="w-full p-4 text-left rounded-xl bg-soft-purple/40 border-2 border-transparent hover:border-rich-plum font-black text-lg">{o[1]}</button>
+                                ))}</div>
                             ) : (
                                 <div className="flex flex-col">
-                                    <button onClick={validateNext} className="w-full bg-rich-plum text-white py-5 rounded-xl font-black uppercase tracking-widest shadow-xl mb-4">Continue Assessment →</button>
-                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => {setForm({...form, [steps[step].id]: e.target.value}); setError(false);}}
-                                        className="w-full bg-transparent border-b-4 border-soft-purple focus:border-rich-plum p-4 text-4xl font-black outline-none text-center text-rich-plum" />
+                                    <button onClick={() => { if(!form[steps[step].id]) return setError(true); setStep(step + 1); setError(false); }} className="w-full bg-rich-plum text-white py-4 rounded-xl font-black mb-4 uppercase tracking-widest">Next Phase →</button>
+                                    <input autoFocus type={steps[step].type} placeholder={steps[step].placeholder} value={form[steps[step].id]} onChange={e => setForm({...form, [steps[step].id]: e.target.value})} className="w-full bg-transparent border-b-4 border-soft-purple text-4xl font-black outline-none text-center text-rich-plum" />
                                 </div>
                             )}
-                            {step > 0 && <button onClick={() => setStep(step-1)} className="mt-8 text-rich-plum opacity-40 font-black uppercase text-[10px] tracking-widest block mx-auto transition-opacity hover:opacity-100 italic font-bold underline decoration-premium-gold decoration-2 underline-offset-4">← Edit Previous Answer</button>}
+                            {step > 0 && <button onClick={() => setStep(step-1)} className="mt-6 text-rich-plum opacity-40 font-black text-[10px] tracking-widest block mx-auto underline italic underline-offset-4">← Re-enter previous</button>}
                         </div>
                     </div>
                 </div>
