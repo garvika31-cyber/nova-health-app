@@ -82,11 +82,8 @@
                     }
                     fat = Math.min(Math.max(fat, 5), 60);
 
-                    // Logic: Ideal water is at least user's current + 1 if they are already doing well
                     let targetWater = Math.max(12, Math.ceil((W * 0.04) / 0.25));
-                    if (currentWater >= targetWater) {
-                        targetWater = currentWater + 1; 
-                    }
+                    if (currentWater >= targetWater) targetWater = currentWater + 1;
 
                     const idealW = 22 * ((H / 100) ** 2);
                     const targetBmr = Math.round((10 * idealW) + (6.25 * H) - (5 * A) + (finalData.s === 'male' ? 5 : -161));
@@ -111,13 +108,8 @@
                 const updatedForm = nextValue ? { ...form, [steps[step].id]: nextValue } : form;
                 if (!updatedForm[steps[step].id]) { setError(true); return; }
                 setError(false);
-                if (step < steps.length - 1) {
-                    setForm(updatedForm);
-                    setStep(step + 1);
-                } else {
-                    setForm(updatedForm);
-                    analyze(updatedForm);
-                }
+                if (step < steps.length - 1) { setForm(updatedForm); setStep(step + 1); }
+                else { setForm(updatedForm); analyze(updatedForm); }
             };
 
             const LogoGroup = () => (
@@ -132,33 +124,60 @@
 
             if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple text-center px-10"><div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div><p className="mt-4 font-black text-[10px] tracking-widest text-rich-plum">CALIBRATING BIOLOGY...</p></div>;
 
-            if (report) return (
-                <div className="max-w-md mx-auto fade-up pb-20">
-                    <LogoGroup />
-                    <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-8 border-rich-plum">
-                        <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
-                        <h2 className="text-7xl font-black text-rich-plum italic">{report.score}</h2>
-                    </div>
+            if (report) {
+                const cards = [
+                    { 
+                        t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold",
+                        d: report.water < report.targetWater 
+                            ? "Low intake is causing cellular thickening and slowing waste filtration. Increasing to the ideal will flush cortisol and boost energy." 
+                            : "Elite hydration status. You are maintaining optimal plasma volume which keeps the brain sharp and the kidneys stress-free."
+                    },
+                    { 
+                        t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum",
+                        d: report.steps < report.targetSteps 
+                            ? "Inactivity is keeping the GLUT4 protein dormant, forcing the body to store sugar as fat. Movement is required to flip the metabolic switch." 
+                            : "Exceptional movement. You are actively utilizing circulating glucose and forcing your body into adipose-burning mode."
+                    },
+                    { 
+                        t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold",
+                        d: report.bmi > 22 
+                            ? "Excess mass is creating cardiac wall pressure and systemic inflammation. Aligning to 22.0 will unlock maximum longevity." 
+                            : "Your weight-to-height ratio is within the healthy zone, minimizing strain on joints and the vascular system."
+                    },
+                    { 
+                        t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum",
+                        d: report.bmr < report.targetBmr 
+                            ? "Your metabolic 'engine' is undersized for your frame, leading to easy fat storage. Building muscle is key to increasing this burn rate." 
+                            : "High metabolic capacity. Your system is naturally efficient at thermogenesis, favoring calorie burning over long-term storage."
+                    },
+                    { 
+                        t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold",
+                        d: report.fat > report.targetFat 
+                            ? "High adipose levels are driving a cortisol-driven inflammatory cycle. Reducing this will improve focus and hormonal balance." 
+                            : "Excellent lean profile. Your body is maintaining a clean hormonal environment with minimal systemic inflammation."
+                    }
+                ];
 
-                    <div className="grid gap-4 mb-8">
-                        {[
-                            { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: `Your unique system requires ${report.targetWater} glasses to maintain cellular plasma volume and peak kidney performance.` },
-                            { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum", d: `Reaching ${report.targetSteps} daily steps activates the GLUT4 protein mechanism, prioritizing stored fat burning.` },
-                            { t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: `A BMI of 22.0 is the global gold standard for longevity, reducing systemic inflammation.` },
-                            { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: `Your idle metabolic speed. An ideal of ${report.targetBmr} signifies peak endocrine repair capacity.` },
-                            { t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: `Lowering levels to ${report.targetFat}% stops the inflammatory cortisol cycle, resulting in high focus.` }
-                        ].map((item, idx) => (
-                            <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
-                                <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
-                                <p className="text-3xl font-black mb-1">{item.v} {item.u}</p>
-                                <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.d}</p>
-                            </div>
-                        ))}
+                return (
+                    <div className="max-w-md mx-auto fade-up pb-20">
+                        <LogoGroup />
+                        <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-8 border-rich-plum">
+                            <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
+                            <h2 className="text-7xl font-black text-rich-plum italic">{report.score}</h2>
+                        </div>
+                        <div className="grid gap-4 mb-8">
+                            {cards.map((item, idx) => (
+                                <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
+                                    <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
+                                    <p className="text-3xl font-black mb-1">{item.v} {item.u}</p>
+                                    <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.d}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs">Unlock Full Plan - ₹111</button>
                     </div>
-                    
-                    <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs">Unlock Full Plan - ₹111</button>
-                </div>
-            );
+                );
+            }
 
             const current = steps[step];
             return (
