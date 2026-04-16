@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com-react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script>
         tailwind.config = {
@@ -19,7 +19,7 @@
         }
     </script>
     <style>
-        body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; font-family: 'Instrument Sans', sans-serif; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+        body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; font-family: 'Instrument Sans', sans-serif; overflow-x: hidden; min-height: 100vh; }
         .logo-outer { width: 90px; height: 90px; background: #C7D2FE; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
         .logo-inner { width: 65px; height: 65px; background: #2D1B33; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 20px; }
         .logo-group { animation: float 1.5s ease-in-out infinite; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -27,7 +27,6 @@
         .target-tag { background: #F5F2FF; border: 1px solid #D4AF37; color: #D4AF37; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .fade-up { animation: fadeUp 0.5s ease-out forwards; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        /* Glossy Footer Punchline */
         .footer-punchline { 
             color: #3E2723; 
             font-weight: 900; 
@@ -36,14 +35,14 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1), -1px -1px 0px rgba(255,255,255,0.8);
             font-size: 14px;
             text-align: center;
-            padding: 20px 0;
+            padding: 30px 0;
             width: 100%;
             margin-top: auto;
         }
     </style>
 </head>
 <body class="p-4">
-    <div id="root" class="flex-1 flex flex-col"></div>
+    <div id="root"></div>
 
     <script type="text/babel">
         const { useState } = React;
@@ -140,9 +139,11 @@
             );
 
             if (loading) return (
-                <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple text-center px-10">
-                    <div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-4 font-black text-[10px] tracking-widest text-rich-plum">CALIBRATING BIOLOGY...</p>
+                <div className="min-h-screen flex flex-col items-center justify-between">
+                    <div className="flex-1 flex flex-col items-center justify-center bg-soft-purple text-center px-10">
+                        <div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
+                        <p className="mt-4 font-black text-[10px] tracking-widest text-rich-plum">CALIBRATING BIOLOGY...</p>
+                    </div>
                     <Footer />
                 </div>
             );
@@ -182,22 +183,24 @@
                 ];
 
                 return (
-                    <div className="max-w-md mx-auto fade-up pb-10 flex flex-col min-h-screen">
-                        <LogoGroup />
-                        <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-8 border-rich-plum">
-                            <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
-                            <h2 className="text-7xl font-black text-rich-plum italic">{report.score}</h2>
+                    <div className="min-h-screen flex flex-col">
+                        <div className="max-w-md mx-auto fade-up pb-10 flex-1 w-full">
+                            <LogoGroup />
+                            <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-8 border-rich-plum">
+                                <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
+                                <h2 className="text-7xl font-black text-rich-plum italic">{report.score}</h2>
+                            </div>
+                            <div className="grid gap-4 mb-8">
+                                {cards.map((item, idx) => (
+                                    <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
+                                        <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
+                                        <p className="text-3xl font-black mb-1">{item.v} {item.u}</p>
+                                        <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.d}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs">Unlock Full Plan - ₹111</button>
                         </div>
-                        <div className="grid gap-4 mb-8">
-                            {cards.map((item, idx) => (
-                                <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
-                                    <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
-                                    <p className="text-3xl font-black mb-1">{item.v} {item.u}</p>
-                                    <p className="text-[11px] text-clay font-bold italic leading-relaxed">{item.d}</p>
-                                </div>
-                            ))}
-                        </div>
-                        <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs mb-10">Unlock Full Plan - ₹111</button>
                         <Footer />
                     </div>
                 );
@@ -205,26 +208,28 @@
 
             const current = steps[step];
             return (
-                <div className="max-w-md mx-auto min-h-screen flex flex-col fade-up">
-                    <LogoGroup />
-                    <div className="flex-1 px-2">
-                        <div className="mb-6 text-center px-4">
-                            <h2 className="text-xl font-black text-rich-plum uppercase italic leading-tight">{current.q}</h2>
-                            <p className="text-clay text-[9px] font-extrabold uppercase tracking-widest opacity-60">{current.sub}</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-[2rem] shadow-sm relative border-b-4 border-soft-purple">
-                            {error && <p className="text-red-500 text-[10px] font-black text-center mb-2">Input Required</p>}
-                            {current.options ? (
-                                <div className="grid gap-3">{current.options.map(o => (
-                                    <button key={o[0]} onClick={() => handleNext(o[0])} className="w-full p-4 text-left rounded-xl bg-soft-purple/40 border-2 border-transparent hover:border-rich-plum transition-all font-black text-lg">{o[1]}</button>
-                                ))}</div>
-                            ) : (
-                                <div className="flex flex-col">
-                                    <button onClick={() => handleNext()} className="w-full bg-rich-plum text-white py-4 rounded-xl font-black mb-4 uppercase tracking-widest text-xs shadow-lg">Next Phase →</button>
-                                    <input autoFocus type={current.type} placeholder={current.placeholder} value={form[current.id]} onChange={e => setForm({...form, [current.id]: e.target.value})} className="w-full bg-transparent border-b-4 border-soft-purple text-5xl font-black outline-none text-center text-rich-plum" />
-                                </div>
-                            )}
-                            {step > 0 && <button onClick={() => setStep(step-1)} className="mt-8 text-rich-plum opacity-40 font-black text-[10px] tracking-widest block mx-auto underline italic">← Back</button>}
+                <div className="min-h-screen flex flex-col">
+                    <div className="max-w-md mx-auto fade-up flex-1 w-full">
+                        <LogoGroup />
+                        <div className="px-2">
+                            <div className="mb-6 text-center px-4">
+                                <h2 className="text-xl font-black text-rich-plum uppercase italic leading-tight">{current.q}</h2>
+                                <p className="text-clay text-[9px] font-extrabold uppercase tracking-widest opacity-60">{current.sub}</p>
+                            </div>
+                            <div className="bg-white p-8 rounded-[2rem] shadow-sm relative border-b-4 border-soft-purple">
+                                {error && <p className="text-red-500 text-[10px] font-black text-center mb-2">Input Required</p>}
+                                {current.options ? (
+                                    <div className="grid gap-3">{current.options.map(o => (
+                                        <button key={o[0]} onClick={() => handleNext(o[0])} className="w-full p-4 text-left rounded-xl bg-soft-purple/40 border-2 border-transparent hover:border-rich-plum transition-all font-black text-lg">{o[1]}</button>
+                                    ))}</div>
+                                ) : (
+                                    <div className="flex flex-col">
+                                        <button onClick={() => handleNext()} className="w-full bg-rich-plum text-white py-4 rounded-xl font-black mb-4 uppercase tracking-widest text-xs shadow-lg">Next Phase →</button>
+                                        <input autoFocus type={current.type} placeholder={current.placeholder} value={form[current.id]} onChange={e => setForm({...form, [current.id]: e.target.value})} className="w-full bg-transparent border-b-4 border-soft-purple text-5xl font-black outline-none text-center text-rich-plum" />
+                                    </div>
+                                )}
+                                {step > 0 && <button onClick={() => setStep(step-1)} className="mt-8 text-rich-plum opacity-40 font-black text-[10px] tracking-widest block mx-auto underline italic">← Back</button>}
+                            </div>
                         </div>
                     </div>
                     <Footer />
