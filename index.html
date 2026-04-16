@@ -7,19 +7,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com-react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { 'rich-plum': '#2D1B33', 'premium-gold': '#D4AF37', 'soft-purple': '#F5F2FF', 'clay': '#795548', 'glossy-brown': '#5D4037' }
+                    colors: { 'rich-plum': '#2D1B33', 'premium-gold': '#D4AF37', 'soft-purple': '#F5F2FF', 'clay': '#795548', 'glossy-brown': '#3E2723' }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; font-family: 'Instrument Sans', sans-serif; overflow-x: hidden; }
+        body { background-color: #F5F2FF; color: #2D1B33; -webkit-font-smoothing: antialiased; font-family: 'Instrument Sans', sans-serif; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
         .logo-outer { width: 90px; height: 90px; background: #C7D2FE; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
         .logo-inner { width: 65px; height: 65px; background: #2D1B33; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 20px; }
         .logo-group { animation: float 1.5s ease-in-out infinite; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -27,12 +27,23 @@
         .target-tag { background: #F5F2FF; border: 1px solid #D4AF37; color: #D4AF37; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .fade-up { animation: fadeUp 0.5s ease-out forwards; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        /* Punchline Glossy Effect */
-        .punchline { color: #5D4037; font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.5); }
+        /* Glossy Footer Punchline */
+        .footer-punchline { 
+            color: #3E2723; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 0.2em; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1), -1px -1px 0px rgba(255,255,255,0.8);
+            font-size: 14px;
+            text-align: center;
+            padding: 20px 0;
+            width: 100%;
+            margin-top: auto;
+        }
     </style>
 </head>
 <body class="p-4">
-    <div id="root"></div>
+    <div id="root" class="flex-1 flex flex-col"></div>
 
     <script type="text/babel">
         const { useState } = React;
@@ -121,11 +132,20 @@
                         <span className="text-4xl text-rich-plum animate-pulse opacity-80">✨</span>
                     </div>
                     <h1 className="text-sm font-black tracking-[0.4em] text-rich-plum mt-5">HEALTH GUIDE PRO</h1>
-                    <p className="punchline text-[11px] mt-2">Provoking For Better Health</p>
                 </div>
             );
 
-            if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple text-center px-10"><div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div><p className="mt-4 font-black text-[10px] tracking-widest text-rich-plum">CALIBRATING BIOLOGY...</p></div>;
+            const Footer = () => (
+                <footer className="footer-punchline">Provoking For Better Health</footer>
+            );
+
+            if (loading) return (
+                <div className="min-h-screen flex flex-col items-center justify-center bg-soft-purple text-center px-10">
+                    <div className="w-12 h-12 border-4 border-rich-plum border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 font-black text-[10px] tracking-widest text-rich-plum">CALIBRATING BIOLOGY...</p>
+                    <Footer />
+                </div>
+            );
 
             if (report) {
                 const cards = [
@@ -162,7 +182,7 @@
                 ];
 
                 return (
-                    <div className="max-w-md mx-auto fade-up pb-20">
+                    <div className="max-w-md mx-auto fade-up pb-10 flex flex-col min-h-screen">
                         <LogoGroup />
                         <div className="bg-white rounded-[2rem] p-8 text-center mb-6 shadow-sm border-t-8 border-rich-plum">
                             <p className="text-[10px] font-black opacity-30 uppercase tracking-widest mb-1">Authentic Health Score</p>
@@ -177,7 +197,8 @@
                                 </div>
                             ))}
                         </div>
-                        <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs">Unlock Full Plan - ₹111</button>
+                        <button onClick={() => window.open(`https://wa.me/918851096893?text=Full Awakening Plan for Score ${report.score}`)} className="w-full bg-rich-plum text-white py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl text-xs mb-10">Unlock Full Plan - ₹111</button>
+                        <Footer />
                     </div>
                 );
             }
@@ -206,6 +227,7 @@
                             {step > 0 && <button onClick={() => setStep(step-1)} className="mt-8 text-rich-plum opacity-40 font-black text-[10px] tracking-widest block mx-auto underline italic">← Back</button>}
                         </div>
                     </div>
+                    <Footer />
                 </div>
             );
         };
