@@ -58,34 +58,50 @@
                 { id: 'goal', q: "Your Objective?", sub: "Aligns report logic", options: [['loss', 'Lose Fat 📉'], ['maintain', 'Healthy ✨'], ['gain', 'Build Muscle 💪']] }
             ];
 
-            const analyze = () => {
+            const analyze = (finalData) => {
                 setLoading(true);
                 setTimeout(() => {
-                    const { weight, height, age, s, waist, neck, hip, goal, condition, habit } = form;
-                    const bmr = (10*weight) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161);
-                    const bmi = (weight / ((height/100)**2)).toFixed(1);
-                    
+                    const W = Number(finalData.weight) || 0;
+                    const H = Number(finalData.height) || 0;
+                    const A = Number(finalData.age) || 0;
+                    const waist = Number(finalData.waist) || 0;
+                    const neck = Number(finalData.neck) || 0;
+                    const hip = Number(finalData.hip) || 0;
+                    const currentWater = Number(finalData.water) || 0;
+
+                    const bmi = (W / ((H / 100) ** 2)).toFixed(1);
+                    const bmr = (10 * W) + (6.25 * H) - (5 * A) + (finalData.s === 'male' ? 5 : -161);
+
                     let fat = 0;
-                    if (s === 'male') {
-                        fat = 86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76;
+                    if (finalData.s === 'male') {
+                        const diff = Math.max(waist - neck, 0.1);
+                        fat = 86.010 * Math.log10(diff) - 70.041 * Math.log10(H) + 36.76;
                     } else {
-                        fat = 163.205 * Math.log10(waist + (hip||0) - neck) - 97.684 * Math.log10(height) - 78.387;
+                        const diff = Math.max((waist + hip) - neck, 0.1);
+                        fat = 163.205 * Math.log10(diff) - 97.684 * Math.log10(H) - 78.387;
+                    }
+                    fat = Math.min(Math.max(fat, 5), 60);
+
+                    // Logic: Ideal water is at least user's current + 1 if they are already doing well
+                    let targetWater = Math.max(12, Math.ceil((W * 0.04) / 0.25));
+                    if (currentWater >= targetWater) {
+                        targetWater = currentWater + 1; 
                     }
 
-                    // Water: Floor of 10 for adults, or weight-based.
-                    let targetWater = Math.max(10, Math.ceil((weight * 0.04) / 0.25));
-                    
-                    // BMR Ideal: Represents the engine capacity at Target BMI 22.0
-                    const idealW = 22 * ((height/100)**2);
-                    const targetBmr = Math.round((10*idealW) + (6.25*height) - (5*age) + (s === 'male' ? 5 : -161));
+                    const idealW = 22 * ((H / 100) ** 2);
+                    const targetBmr = Math.round((10 * idealW) + (6.25 * H) - (5 * A) + (finalData.s === 'male' ? 5 : -161));
+                    const targetFat = (finalData.s === 'male' ? 15 : 22);
 
-                    let score = 100 - (Math.abs(bmi-22)*6) - (Math.abs(fat-(s==='male'?15:22))*0.5);
-                    if(condition !== 'none') score -= 14;
-                    if(habit === 'regular') score -= 10;
+                    let score = 100 - (Math.abs(bmi - 22) * 4) - (Math.abs(fat - targetFat) * 0.8);
+                    if (finalData.condition !== 'none') score -= 14;
+                    if (finalData.habit === 'regular') score -= 10;
 
-                    setReport({ 
-                        score: Math.max(35, Math.round(score)), bmi, bmr: Math.round(bmr), fat: Math.round(fat), steps: form.steps, water: form.water,
-                        targetWater, targetSteps: goal === 'loss' ? 12000 : 8500, targetBmr, targetBmi: "22.0", targetFat: (s==='male'?15:22)
+                    setReport({
+                        score: Math.max(35, Math.round(score)),
+                        bmi, bmr: Math.round(bmr), fat: Math.round(fat),
+                        steps: finalData.steps, water: currentWater,
+                        targetWater, targetSteps: finalData.goal === 'loss' ? 12000 : 8500,
+                        targetBmr, targetBmi: "22.0", targetFat
                     });
                     setLoading(false);
                 }, 2000);
@@ -95,7 +111,13 @@
                 const updatedForm = nextValue ? { ...form, [steps[step].id]: nextValue } : form;
                 if (!updatedForm[steps[step].id]) { setError(true); return; }
                 setError(false);
-                if (step < steps.length - 1) { setForm(updatedForm); setStep(step + 1); } else { setForm(updatedForm); analyze(); }
+                if (step < steps.length - 1) {
+                    setForm(updatedForm);
+                    setStep(step + 1);
+                } else {
+                    setForm(updatedForm);
+                    analyze(updatedForm);
+                }
             };
 
             const LogoGroup = () => (
@@ -120,11 +142,11 @@
 
                     <div className="grid gap-4 mb-8">
                         {[
-                            { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: `Your unique system requires ${report.targetWater} glasses to maintain cellular plasma volume. Reaching this target is critical for renal waste filtration and preventing dehydration-induced 'false hunger'.` },
-                            { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum", d: `Reaching ${report.targetSteps} daily steps activates the GLUT4 protein mechanism, forcing your body to prioritize burning stored adipose fat instead of just circulating blood glucose.` },
-                            { t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: `A BMI of 22.0 is the global gold standard for longevity. Aligning weight to this ratio reduces systemic inflammation and minimizes cardiac wall pressure.` },
-                            { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: `Your resting metabolic speed. An ideal of ${report.targetBmr} signifies a thyroid system operating at peak repair capacity, favoring thermogenesis over calorie storage.` },
-                            { t: "Body Fat Level", v: Math.round(report.fat) + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: `Lowering levels to ${report.targetFat}% stops the inflammatory cortisol cycle, resulting in high cognitive focus and metabolic flexibility.` }
+                            { t: "Metabolic Hydration", v: report.water, i: report.targetWater, u: "Gl", c: "border-premium-gold", d: `Your unique system requires ${report.targetWater} glasses to maintain cellular plasma volume and peak kidney performance.` },
+                            { t: "Step Density Index", v: report.steps, i: report.targetSteps, u: "", c: "border-rich-plum", d: `Reaching ${report.targetSteps} daily steps activates the GLUT4 protein mechanism, prioritizing stored fat burning.` },
+                            { t: "BMI (Physio-Ratio)", v: report.bmi, i: report.targetBmi, u: "", c: "border-premium-gold", d: `A BMI of 22.0 is the global gold standard for longevity, reducing systemic inflammation.` },
+                            { t: "BMR (Engine Capacity)", v: report.bmr, i: report.targetBmr, u: "Cal", c: "border-rich-plum", d: `Your idle metabolic speed. An ideal of ${report.targetBmr} signifies peak endocrine repair capacity.` },
+                            { t: "Body Fat Level", v: report.fat + "%", i: report.targetFat + "%", u: "", c: "border-premium-gold", d: `Lowering levels to ${report.targetFat}% stops the inflammatory cortisol cycle, resulting in high focus.` }
                         ].map((item, idx) => (
                             <div key={idx} className={`bg-white p-5 rounded-2xl border-l-8 ${item.c} shadow-sm`}>
                                 <div className="flex justify-between items-start mb-1"><h3 className="text-[10px] font-black uppercase tracking-wider">{item.t}</h3><span className="target-tag">Ideal: {item.i} {item.u}</span></div>
@@ -148,7 +170,7 @@
                             <p className="text-clay text-[9px] font-extrabold uppercase tracking-widest opacity-60">{current.sub}</p>
                         </div>
                         <div className="bg-white p-8 rounded-[2rem] shadow-sm relative border-b-4 border-soft-purple">
-                            {error && <p className="text-red-500 text-[10px] font-black text-center mb-2">Input Required to Proceed</p>}
+                            {error && <p className="text-red-500 text-[10px] font-black text-center mb-2">Input Required</p>}
                             {current.options ? (
                                 <div className="grid gap-3">{current.options.map(o => (
                                     <button key={o[0]} onClick={() => handleNext(o[0])} className="w-full p-4 text-left rounded-xl bg-soft-purple/40 border-2 border-transparent hover:border-rich-plum transition-all font-black text-lg">{o[1]}</button>
